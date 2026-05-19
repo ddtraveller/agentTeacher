@@ -494,6 +494,7 @@ def _current_item(s: dict, lesson: dict) -> dict:
             "data": lesson["p1_examples"][idx],
             "intro": lesson["p1_intro"] if idx == 0 else None,
             "is_last": idx == len(lesson["p1_examples"]) - 1,
+            "lesson_type": lesson.get("lesson_type", "two_form_contrast"),
         }
     if phase == "p2":
         ex = lesson["p2_exercises"][s["p2_idx"] % len(lesson["p2_exercises"])]

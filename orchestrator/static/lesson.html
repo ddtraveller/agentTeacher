@@ -86,6 +86,8 @@
                      stroke-linecap: round; stroke-linejoin: round; }
   .timeline .label-cont { fill: #0a4848; font-weight: 700; font-size: 13px; }
   .timeline .label-simp { fill: #6b4400; font-weight: 700; font-size: 13px; }
+  .timeline .event-dot { fill: #c8702a; stroke: #6b4400; stroke-width: 2; }
+  .timeline .label-verbtype { fill: #6b4400; font-size: 11px; font-style: italic; }
   .timeline .tick-lbl { fill: #888; font-size: 11px; }
 
   /* P2 — Controlled practice */
@@ -339,9 +341,8 @@ function renderLangBlocks(textsByLang, audioStem, extraHtmlByLang) {
 // past-simple action as a lightning-bolt interrupting it at one point.
 // Both labels are pulled from the lesson JSON's highlight_* fields.
 function buildTimelineSvg(contLabel, simpLabel) {
-  // Wave runs from x=70 to x=470 on a 540-wide canvas. The bolt strikes
-  // at x=300 (a bit past centre, so the wave clearly extends past it —
-  // the continuous action was already happening when the simple one hit).
+  // Two-form contrast (past_continuous): wavy line for the ongoing action,
+  // lightning bolt for the interrupting past-simple event at x=300.
   return `
     <svg class="timeline" viewBox="0 0 540 110" aria-hidden="true">
       <!-- Time axis -->
@@ -357,6 +358,24 @@ function buildTimelineSvg(contLabel, simpLabel) {
       <!-- Bolt that interrupts the wave at x=300 -->
       <path class="bolt" d="M 295 38 L 305 55 L 297 55 L 305 72"/>
       <text class="label-simp" x="300" y="100" text-anchor="middle">${simpLabel || ''}</text>
+    </svg>`;
+}
+
+function buildSingleFormTimelineSvg(verbLabel, verbTypeLabel) {
+  // Single-form (past_simple): a completed event in the past, marked by a
+  // solid dot on the time axis. No ongoing action, no interruption.
+  return `
+    <svg class="timeline" viewBox="0 0 540 110" aria-hidden="true">
+      <!-- Time axis -->
+      <line class="axis" x1="20" y1="80" x2="520" y2="80"/>
+      <polygon points="520,80 510,75 510,85" fill="#999"/>
+      <text class="tick-lbl" x="20" y="100">past</text>
+      <text class="tick-lbl" x="500" y="100" text-anchor="end">now →</text>
+
+      <!-- The completed past event: a solid dot anchored on the axis -->
+      <circle class="event-dot" cx="220" cy="80" r="9"/>
+      <text class="label-cont" x="220" y="55" text-anchor="middle">${verbLabel || ''}</text>
+      <text class="label-verbtype" x="220" y="103" text-anchor="middle">${verbTypeLabel || ''}</text>
     </svg>`;
 }
 
@@ -460,12 +479,34 @@ function render(feedback) {
 // ── P1: Presentation ───────────────────────────────────────────────────────
 function renderP1(feedback) {
   const ex = item.data;
-  const sentenceHtml = buildWordSpans(
-    ex.sentence, ex.highlight_continuous, ex.highlight_simple
-  );
-  const timelineSvg = buildTimelineSvg(
-    ex.highlight_continuous, ex.highlight_simple
-  );
+  const lessonType = item.lesson_type || 'two_form_contrast';
+
+  let sentenceHtml, timelineSvg, keyHtml;
+  if (lessonType === 'single_form') {
+    // Past simple, present simple, future simple — one verb form in focus.
+    sentenceHtml = buildWordSpans(ex.sentence, ex.highlight_verb, null);
+    timelineSvg = buildSingleFormTimelineSvg(ex.highlight_verb, ex.verb_type);
+    keyHtml = `
+      <div class="key">
+        <span class="k-cont">${ex.verb_type || 'target verb form'}</span>
+        <span class="k-spoken">currently being spoken</span>
+      </div>`;
+  } else {
+    // two_form_contrast — past continuous interrupted by past simple, etc.
+    sentenceHtml = buildWordSpans(
+      ex.sentence, ex.highlight_continuous, ex.highlight_simple
+    );
+    timelineSvg = buildTimelineSvg(
+      ex.highlight_continuous, ex.highlight_simple
+    );
+    keyHtml = `
+      <div class="key">
+        <span class="k-cont">was/were + V-ing — action in progress</span>
+        <span class="k-simp">past simple — interruption</span>
+        <span class="k-spoken">currently being spoken</span>
+      </div>`;
+  }
+
   // Intro card: 3 plain language blocks, no extras.
   const introCard = item.intro ? `
     <div class="card intro-card">
@@ -477,11 +518,7 @@ function renderP1(feedback) {
   const enExtra = `
     <div class="ex-sentence" id="sentence">${sentenceHtml}</div>
     ${timelineSvg}
-    <div class="key">
-      <span class="k-cont">was/were + V-ing — action in progress</span>
-      <span class="k-simp">past simple — interruption</span>
-      <span class="k-spoken">currently being spoken</span>
-    </div>
+    ${keyHtml}
     <button class="speak-btn" id="speak" style="margin-top:0.5rem;">🔊 Listen with karaoke</button>`;
   const langBlocks = renderLangBlocks(
     { en: '', th: ex.th, zh: ex.zh },  // EN text is rendered as karaoke sentence above
