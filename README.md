@@ -18,14 +18,30 @@ isn't always cooperative.
 ## Why this exists
 
 Schools using ChatGPT or other cloud AI for student English practice send
-every student utterance to a US-based provider. Under Thailand's PDPA, that
-exposes the school to a real compliance question — especially for minors.
+every student utterance to a US-based provider. Under Thailand's PDPA,
+that exposes the school to a real compliance question — especially for
+minors.
+
+Two things make this worse going forward:
+
+1. **ChatGPT's free tier is moving to ad-supported.** OpenAI has signaled
+   plans to monetize free-tier users with advertising and partnerships,
+   which means student conversations become training and targeting
+   signal. Schools sending student queries to a free-tier US AI service
+   are not the customer — they're the product.
+2. **Mass data transfer to American AI providers is an emerging legal
+   risk.** Thailand's PDPA, the EU's GDPR-influenced rules, and recent
+   education-sector data rulings all point the same direction: bulk
+   transfer of student utterances — especially minors' — to overseas
+   processors is exposure waiting to happen. Schools that haven't been
+   audited yet probably will be.
 
 This stack runs **entirely on your school's PC**. Whisper does speech
-recognition locally. Qwen 2.5 generates replies locally. Edge TTS handles
-voice output (free, online, voices only — no user audio sent).
-
-Your students' voices never leave your network.
+recognition locally. Qwen 2.5 generates replies locally. Edge TTS
+handles voice output (free Microsoft service, voices only — no user
+audio sent). Your students' voices never leave your network. Your
+school's curriculum, your students' progress data, your teachers'
+custom materials — none of it gets uploaded anywhere.
 
 ## What you get
 
@@ -34,6 +50,113 @@ Your students' voices never leave your network.
 - **A scaffolded PPP lesson engine** — Presentation → Practice → Production. Sample lesson included (Past Continuous).
 - **Voice cloning, optional** — drop a 6-second WAV of any teacher's voice into `voices/`; XTTS v2 will clone it.
 - **All open source.** MIT licensed.
+
+## What schools can do with it
+
+The same local-AI stack underneath Kru Eng can power a lot more than
+English speaking practice. Below: what's possible today with what ships
+in this repo, what's a small extension away, and what you could grow
+into. All of it stays on your PC.
+
+### Today, with what ships in this repo
+
+- **A 24/7 English speaking partner.** Students who never speak in
+  class because they're embarrassed will talk to a bot. The bot doesn't
+  judge, doesn't get tired, doesn't run out of patience.
+- **A tireless homework grader.** Plug your rubric into
+  `seed_wiki/assessment/`, drop student work into a chat, get
+  consistent feedback in seconds. Teachers spot-check; the bot drafts.
+- **A lesson planner and quiz generator.** Ask for a 45-minute lesson
+  on a topic; the bot drafts presentation slides, practice exercises,
+  and an exit ticket — grounded in your school's curriculum, not a
+  generic textbook.
+- **A teaching assistant that knows your students.** Per-learner
+  markdown profiles in `seed_wiki/students/` let the bot adapt
+  difficulty, remember a student's interests, and follow up on
+  previous conversations. Add or remove students by editing files.
+- **An institutional Q&A bot.** Drop your school handbook, dress code,
+  schedule, holiday calendar, and SOPs into the wiki. Students, parents,
+  and staff can ask in natural language and get cited answers — never
+  invented.
+- **A safe alternative to ChatGPT for student exploration.** The same
+  curiosity-driven "let me ask the AI" instinct, redirected to a system
+  the school controls. Schools can decide what topics the bot will and
+  won't discuss by editing the persona file.
+- **A multilingual tutor.** English, Thai, Chinese, Japanese, Korean —
+  all handled. Useful for international students, EP programs, and
+  Chinese-Thai dual-language schools.
+
+### A small extension away (a few hours of work each)
+
+- **A LINE chatbot for parents and students.** Same agent, accessed via
+  Thailand's dominant chat app. Push daily vocab cards, homework
+  reminders, exam-prep prompts. Kids practice English while waiting for
+  the bus.
+- **Scheduled tasks.** "Push 5 vocabulary cards to M4/2 at 7 AM every
+  weekday." "Email the principal a summary of student questions every
+  Friday afternoon." Cron + the local agent = zero monthly cost.
+- **A local website on the school LAN.** The orchestrator already
+  serves a web UI. Open the port to the LAN and any phone, tablet, or
+  PC on the school network can use it — no app install, no internet,
+  no per-seat license. Students get one URL; staff get another with
+  different permissions.
+- **Local image generation for classroom materials.** SDXL Turbo runs on
+  any decent GPU. Worksheets, slide illustrations, vocab flashcards —
+  generated on demand from a teacher's prompt, sized correctly,
+  printable. No Canva subscription.
+- **Voice cloning for specific teachers.** Already in the box. Record a
+  teacher's voice once, and the bot can deliver lessons in their voice
+  — useful for absent-teacher cover, accent modeling, or recordings
+  that sound like the actual classroom teacher.
+- **Multi-agent role-play.** Two instances of the bot with different
+  personas talking to each other (Customer + Shopkeeper, Doctor +
+  Patient, Teacher + Student). Students join the dialogue or watch and
+  transcribe — a TEFL technique that's expensive with humans, free
+  with two local agents.
+
+### A bigger project (worth doing if it matches your school's needs)
+
+- **A digital security guard.** Local vision models (Qwen-VL, LLaVA,
+  Llama Vision) can watch a camera feed and flag anomalies — a student
+  in a restricted area, an open gate after hours, a fall in a stairwell.
+  Runs on the same GPU. Nothing leaves the building. Privacy-preserving
+  by design — the model sees frames; only flagged events get logged.
+- **Whole-school staff agent.** HR FAQs, leave-request walkthroughs,
+  finance-form lookups. Most internal admin questions are repetitive —
+  let staff ask the bot and free your office for the hard cases.
+- **Curriculum-specific tutoring beyond English.** Math, science,
+  Thai-language exam prep — change the seed wiki, change the persona,
+  same infrastructure. One local AI, many subjects.
+- **Knowledge preservation.** Every veteran teacher who retires takes
+  hard-won expertise with them. Capture it in markdown over a year of
+  conversations, and the institution keeps the knowledge — without
+  ever uploading it to a third party who would train on it.
+
+### What stays safe
+
+Local AI is the only deployment model where **your school's special
+knowledge** can be used by AI *and* stay yours. Everything that lives
+in `seed_wiki/` — past exam patterns, your school's pedagogical method,
+the rubrics you've refined over a decade, your students' progress
+notes, parent communication templates, internal SOPs — feeds the bot
+without leaking to anyone. The model uses it; nobody trains on it.
+
+Compare to a cloud AI: every question your teachers type, every
+student utterance, every uploaded document becomes training data,
+targeting signal, or both. Your school's hard-won expertise becomes
+free fuel for someone else's product.
+
+### What it can produce
+
+- **Text** — lesson plans, rubrics, parent communications, worksheets,
+  exam questions, vocab lists, story prompts.
+- **Audio** — narrated lessons, pronunciation models, audiobooks in
+  Thai or English, voice-cloned teacher recordings.
+- **Images** — classroom illustrations, vocab flashcards, worksheet
+  graphics (with a GPU and SDXL Turbo).
+- **Structured data** — student progress reports, class summaries,
+  attendance digests, exam analytics — all in formats your existing
+  systems can ingest.
 
 ## Quick start
 
