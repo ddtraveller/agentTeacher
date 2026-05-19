@@ -1,5 +1,11 @@
 # Kru Eng — Local AI English Tutor for Thai Schools
 
+<p align="center">
+  <img src="https://krueng.ai/imgs/agentTeacher/hero.png"
+       alt="The Local AI Advantage: data sovereignty, radical cost savings, an AI office agent for administrative tasks and institutional knowledge, with a hardware-vs-performance reality check."
+       width="900">
+</p>
+
 **ครูอิงค์ — ผู้ช่วยสอนภาษาอังกฤษด้วย AI ที่ทำงานในเครื่องของโรงเรียน**
 
 A voice-in / voice-out English tutor that runs entirely on your school's
