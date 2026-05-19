@@ -139,10 +139,13 @@ years of materials gathering dust on shared drives — and all of it can
 become the AI's corpus:
 
 - **PDFs and Word documents** — lesson plans, worksheets, parent
-  handbooks, policy documents, course outlines. Drop them into
-  `seed_wiki/` (or a sibling folder you point `WIKI_PATH` at) and the
-  bot indexes them automatically. LlamaIndex reads PDF and DOCX out of
-  the box.
+  handbooks, policy documents, course outlines. The shipped index
+  pipeline reads markdown only (by design — keeps the corpus clean),
+  so convert these to `.md` first. `pandoc input.docx -o output.md`
+  handles Word in one line; PDFs are stickier — try `pandoc`,
+  `pdftotext`, or `marker` (best for layout-heavy PDFs) and review the
+  output. See the "Adding your own knowledge files" section below for
+  the full recipe.
 - **Slide decks** — PowerPoint files convert to markdown easily. The
   bot then references "Slide 12 of the Photosynthesis deck" when a
   student asks about chloroplasts.
@@ -281,25 +284,174 @@ You need ~12 GB disk for the models, plus another ~5 GB for Whisper and XTTS.
 ## Customizing Kru Eng for your school
 
 The `seed_wiki/` directory is the bot's brain. It's all plain markdown.
-Edit it however you want — the bot picks up your changes the next time it
-indexes (or set `RAG_ENABLED=true` in `.env` and restart).
+Edit it however you want, then restart the orchestrator and the bot
+uses your changes.
 
-Quick wins:
+### Quick wins (files you can edit today)
 
 - `seed_wiki/school/about_kru_eng.md` — change the school name, your
   pedagogical philosophy, what you want the bot to know about your
   institution.
-- `seed_wiki/staff/kru_eng_persona.md` — the bot's voice and tone. Make her
-  formal, casual, more Thai-leaning, whatever fits your school.
-- `seed_wiki/students/` — one markdown file per student. The bot adapts to
-  individual learners' levels and interests. Template included.
+- `seed_wiki/staff/kru_eng_persona.md` — the bot's voice and tone. Make
+  her formal, casual, more authoritative, whatever fits your school.
+- `seed_wiki/students/` — one markdown file per student. The bot adapts
+  to individual learners' levels and interests. Template included.
 - `seed_wiki/lessons/` — twelve weekly lessons covering English + tech +
-  AI. Each follows a common template (Presentation, Practice, Production).
-  Add, edit, remove freely.
+  AI. Each follows a common template (Presentation, Practice,
+  Production). Add, edit, remove freely.
 
-The wiki is in English because English is the language Qwen reasons best in.
-Thai gloss goes inline in parentheses: `market (ตลาด)`. Don't translate
-whole sentences — the bot does that on output.
+The wiki is in English because English is the language Qwen reasons best
+in. Native-script terms can be quoted inline (`market (ตลาด)`), but
+don't translate whole sentences — that's the bot's job at output time.
+
+### Adding your own knowledge files (step by step)
+
+Use this when you have school-specific content the default wiki doesn't
+cover: your handbook, your past exams, your syllabus, your teachers'
+notes, your subject curriculum. The bot then cites your file when a
+student asks something covered there.
+
+**1. Turn on retrieval.** Edit `.env` and set:
+
+```
+RAG_ENABLED=true
+```
+
+This is `false` by default because the empty wiki doesn't need RAG and
+turning it on costs ~30s at first startup (one-time index build). Once
+you have your own content, you want it on.
+
+**2. Put your file in the right place.** Filename in
+`lower_snake_case.md`, dropped into the directory that matches its
+topic:
+
+```
+seed_wiki/
+├── school/        ← school identity, mission, philosophy
+├── staff/         ← the bot's persona (only one file expected)
+├── students/      ← one file per real learner
+├── curriculum/    ← week-by-week scope, term plans
+├── lessons/       ← lesson plans
+├── vocabulary/    ← lexical chunks, term lists
+├── pronunciation/ ← phonics, common-error patterns
+├── grammar/       ← grammar references
+├── assessment/    ← rubrics, exam patterns, formative techniques
+└── references/    ← methodology, bibliography, recipes
+```
+
+If none of those fit, create a new top-level directory — e.g.,
+`seed_wiki/handbook/` for your school handbook chapters, or
+`seed_wiki/policies/` for SOPs. The indexer recurses automatically.
+
+**3. Add frontmatter at the top of every file** (strongly recommended,
+not strictly required):
+
+```yaml
+---
+title: Year 10 Marking Rubric
+type: assessment
+status: live
+topic: rubrics, exam marking, year 10
+updated: 2026-05-19
+---
+
+# Year 10 Marking Rubric
+
+(your content starts here)
+```
+
+The frontmatter helps you and the bot navigate. `status: live` is the
+convention for "this is real, please use it"; pages without it are
+treated as drafts. `topic:` is a free-text tag — list whatever a student
+might ask about that should land them here.
+
+**4. Force a reindex.** The orchestrator persists the index to disk, so
+new files aren't picked up automatically — restart the orchestrator and
+delete the index cache:
+
+```bash
+docker compose down
+docker volume rm kru-eng-classroom_wiki_index
+docker compose up -d
+```
+
+Watch the logs to confirm the rebuild ran:
+
+```bash
+docker compose logs orchestrator | grep -i index
+```
+
+You should see `building wiki index from /data/wiki (this happens once)`
+followed by `wiki index built: N documents indexed`. If `N` is what you
+expect (existing docs + your new ones), you're good.
+
+**5. Verify it landed.** Ask the bot something only your new file
+answers:
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"What is the Year 10 marking rubric for essays?","history":[]}' \
+  | tail -c 200
+```
+
+The reply should include the content, and the orchestrator's response
+metadata will include a `citations` array naming the file (e.g.,
+`["assessment_year10_rubric"]`). If you get a generic reply with no
+citation, the file either didn't index or RAG isn't enabled.
+
+### What file formats actually work
+
+The shipped indexer reads **`.md` files only** — that's by design
+(corpus stays clean and reviewable; the bot reads the same files a
+teacher can read). For other formats, convert to markdown first:
+
+| You have | Tool | One-liner |
+|---|---|---|
+| `.docx` (Word) | pandoc | `pandoc handbook.docx -o handbook.md` |
+| `.pdf` (text PDFs) | pandoc / pdftotext | `pdftotext -layout doc.pdf - > doc.md` |
+| `.pdf` (scanned / layout-heavy) | marker | `marker_single scan.pdf out_dir` (best results) |
+| `.pptx` (PowerPoint) | pandoc | `pandoc slides.pptx -o slides.md` |
+| `.xlsx` (Excel) | pandoc / python | `pandoc data.xlsx -o data.md` (small tables); script for big sheets |
+| Audio (lectures) | Whisper (already in this stack) | `curl -F "audio_file=@lecture.m4a" http://localhost:9000/asr?output=txt > lecture.md` |
+| Images (whiteboards, handwriting) | A vision model — Ollama can run `qwen2.5vl` locally | Ask the model to transcribe; save output as `.md` |
+| Scanned books (OCR) | Tesseract (`tesseract` CLI; supports Thai + English) | `tesseract page.png page -l tha+eng` |
+
+**One topic per file.** A 200-page handbook is better split into
+`handbook_chapter_1_admissions.md`, `handbook_chapter_2_dress_code.md`,
+etc. The indexer chunks content automatically, but retrieval works
+better when each file is internally coherent.
+
+**Skip media files.** Don't put `.mp3`, `.png`, `.mp4` directly in the
+wiki — they're ignored by the indexer. Transcribe or describe them in
+markdown instead.
+
+### Pointing the bot at a directory outside the repo
+
+If your school's content lives somewhere else (a SharePoint mount, a
+shared drive), you don't have to copy it into `seed_wiki/`. Point the
+`WIKI_PATH` env var at the external directory instead, and bind-mount
+that path into the orchestrator container. Edit `docker-compose.yml`:
+
+```yaml
+orchestrator:
+  environment:
+    WIKI_PATH: /data/wiki
+  volumes:
+    - /mnt/school-shared/kru-eng-content:/data/wiki:ro  # was ./seed_wiki
+    - wiki_index:/data/wiki_index
+```
+
+Then a teacher dropping a new `.md` file into the shared drive is
+indexed on the next reindex — no docker compose copy step.
+
+### When to reindex
+
+- **Adding new files** → reindex.
+- **Substantively editing existing files** → reindex.
+- **Fixing a typo** → don't bother; the chunks already in the index are
+  fine for most retrieval.
+- **Deleting files** → reindex (orphan chunks otherwise hang around).
 
 ## Endpoints
 
