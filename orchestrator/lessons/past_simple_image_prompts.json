@@ -1,0 +1,29 @@
+{
+  "style_prefix": "Warm watercolor and ink children's book illustration, Miyazaki-inspired warmth, Studio Ghibli meets Thai folk art aesthetic. All people are Southeast Asian Thai with warm brown skin and dark hair. Northern Thailand / Lanna setting. No text, no captions, no letters in the image. ",
+  "style_suffix": " Soft natural light, painterly, gentle palette, atmospheric, no harsh shadows.",
+  "settings": {
+    "guidance": 3.5,
+    "num_inference_steps": 28,
+    "aspect_ratio": "16:9",
+    "output_format": "png",
+    "model": "black-forest-labs/flux-dev"
+  },
+  "output_dir": "orchestrator/static/lesson_images/past_simple",
+  "images": {
+    "doi_suthep": {
+      "prompt": "A young Thai woman stands at the top of the long naga-serpent staircase at Wat Phra That Doi Suthep in Chiang Mai, looking up at the gleaming golden chedi above her. She has clearly just finished the climb — a small backpack on her shoulders, hands resting on her hips. Saffron-robed monks walk past in the background. Bright Sunday afternoon, mist clearing over the city below."
+    },
+    "warorot_market": {
+      "prompt": "Inside Warorot Market in Chiang Mai's old town in the early morning. A young Thai woman holds a small plastic bag with two ripe yellow mangoes inside, just bought from the vendor. The market stall has pyramids of mangoes, hand-written paper price tags, an old hanging scale, and a smiling older Thai woman behind the counter. Soft morning light filters through the market's high tin roof."
+    },
+    "songkran_festival": {
+      "prompt": "A Chiang Mai street during Songkran water festival in April. A group of young Thai friends in soaked floral shirts laugh as they pour water on each other from plastic basins; one has white chalk powder gently smudged on her cheek. Jasmine garlands hang from a wooden temple gate behind them, water spray catches the afternoon sun, a small Buddha image on a table is being respectfully bathed with scented water."
+    },
+    "khao_soi_lunch": {
+      "prompt": "A young Thai man sits at a small wooden table in a busy Chiang Mai street-food shop at lunchtime, finishing a bowl of khao soi noodles. The bowl is nearly empty — only a few crispy noodles, a lime wedge, and pickled mustard greens remain. He is wiping his mouth with a napkin, satisfied expression. Other tables of locals in the background, ceiling fan turning, daylight streaming through the open shopfront."
+    },
+    "wat_suan_dok_class": {
+      "prompt": "A small group of Thai adult students sits cross-legged on a wooden floor inside an open-air sala at Wat Suan Dok temple in Chiang Mai, Tuesday evening. They have notebooks and pencils, listening to a soft-spoken Thai monk-teacher who is pointing at a small whiteboard. Warm lamp-light, the temple's iconic white chedis are visible through the open columns behind them, golden hour fading into dusk."
+    }
+  }
+}
