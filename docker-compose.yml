@@ -1,0 +1,83 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: krueng-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # GPU: uncomment if you have NVIDIA + nvidia-container-toolkit set up.
+    # On Windows, this requires Docker Desktop + WSL2 + the NVIDIA driver.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: krueng-whisper
+    environment:
+      ASR_MODEL: ${WHISPER_MODEL:-small}
+      ASR_ENGINE: faster_whisper
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    # For GPU: use the `latest-gpu` image tag instead and uncomment GPU block above.
+
+  tts:
+    build: ./tts
+    container_name: krueng-tts
+    ports:
+      - "8001:8001"
+    volumes:
+      # XTTS v2 (~2 GB) downloads lazily on first non-en/th/zh request and
+      # caches here. Edge TTS handles en/th/zh online — no model download.
+      - tts_cache:/root/.local/share/tts
+      # Reference voice clips for XTTS cloning. Drop a 6+ second WAV here and
+      # pass /voices/<file>.wav as `speaker_wav` to /synthesize.
+      - ./voices:/voices:ro
+    environment:
+      DEVICE: ${TTS_DEVICE:-cpu}
+      XTTS_SPEAKER: ${XTTS_SPEAKER:-Ana Florence}
+      EDGE_VOICE_EN: ${EDGE_VOICE_EN:-en-US-JennyNeural}
+      EDGE_VOICE_TH: ${EDGE_VOICE_TH:-th-TH-PremwadeeNeural}
+      EDGE_VOICE_ZH: ${EDGE_VOICE_ZH:-zh-CN-XiaoxiaoNeural}
+      EDGE_FOR_ZH: ${EDGE_FOR_ZH:-0}
+    restart: unless-stopped
+
+  orchestrator:
+    build: ./orchestrator
+    container_name: krueng-orchestrator
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      WHISPER_URL: http://whisper:9000
+      TTS_URL: http://tts:8001
+      MODEL: ${MODEL:-qwen2.5:3b}
+      OLLAMA_NUM_PREDICT: ${OLLAMA_NUM_PREDICT:-180}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-1536}
+      OLLAMA_TEMPERATURE: ${OLLAMA_TEMPERATURE:-0.7}
+      RAG_ENABLED: ${RAG_ENABLED:-false}
+      EMBED_MODEL: ${EMBED_MODEL:-nomic-embed-text}
+      WIKI_PATH: /data/wiki
+      INDEX_PATH: /data/wiki_index
+      RAG_TOP_K: ${RAG_TOP_K:-3}
+    volumes:
+      # The seed_wiki ships with a 12-week A1→B1 English+Tech+AI curriculum.
+      # Edit these markdown files to customize Kru Eng for your school.
+      - ./seed_wiki:/data/wiki:ro
+      - wiki_index:/data/wiki_index
+    depends_on:
+      - ollama
+      - whisper
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  tts_cache:
+  wiki_index:

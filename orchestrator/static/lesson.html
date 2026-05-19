@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kru Eng — Scaffolded Lesson</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun",
+         "Noto Sans Thai", sans-serif; max-width: 760px; margin: 1rem auto;
+         padding: 1rem; background: #f7f5ef; color: #1a1a1a; }
+  h1 { color: #0a7373; margin: 0 0 0.25rem; text-align: center; font-size: 1.4rem; }
+  .sub { color: #666; font-size: 0.85rem; text-align: center; margin: 0 0 1rem; }
+
+  /* Phase indicator */
+  .phase-bar { display: flex; justify-content: space-between; gap: 0.5rem;
+               margin: 1rem 0; }
+  .phase-step { flex: 1; padding: 0.5rem; background: #e6e3da; border-radius: 6px;
+                text-align: center; font-size: 0.85rem; color: #888;
+                border: 2px solid transparent; }
+  .phase-step.active { background: #0a7373; color: white; border-color: #0a7373; }
+  .phase-step.done { background: #b8d4cf; color: #0a4848; }
+
+  /* Card */
+  .card { background: white; border-radius: 10px; padding: 1.25rem;
+          border: 1px solid #e6e3da; margin: 0.75rem 0;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .card .thai { color: #666; font-size: 0.95rem; margin-top: 0.5rem;
+                font-family: "Sarabun", "Noto Sans Thai", sans-serif; }
+  .card .zh { color: #666; font-size: 0.95rem; margin-top: 0.5rem;
+              font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+                           "Hiragino Sans GB", sans-serif; }
+
+  /* Global language toggle bar (sits above every phase's card) */
+  .lang-toggle-bar { display: flex; align-items: center; gap: 0.75rem;
+                      padding: 0.5rem 1rem; }
+  .lang-toggle-bar .lang-toggle-label { color: #666; font-size: 0.85rem;
+                                          font-weight: 600; }
+
+  /* Toggle group (used both in the bar and any inline location) */
+  .lang-toggles { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem; }
+  .lang-toggles label { display: inline-flex; align-items: center;
+                         gap: 0.35rem; cursor: pointer; user-select: none; }
+  .lang-toggles input { width: 1rem; height: 1rem; cursor: pointer; }
+  .lang-block { margin: 0.6rem 0; }
+  .lang-block.hidden { display: none; }
+  .lang-row { display: flex; align-items: center; gap: 0.75rem;
+              flex-wrap: wrap; }
+  .lang-row .lang-label { display: inline-block; min-width: 2.5rem;
+                          padding: 0.15rem 0.5rem; border-radius: 4px;
+                          background: #e6e3da; color: #444;
+                          font-size: 0.78rem; font-weight: 600;
+                          text-align: center; }
+  .lang-row audio { height: 36px; flex: 1; min-width: 220px; max-width: 360px; }
+  .lang-block p { margin: 0.4rem 0 0; line-height: 1.5; }
+
+  /* P1 — Presentation */
+  .ex-image { width: 100%; max-height: 280px; object-fit: cover;
+              border-radius: 8px; background: #efece4;
+              margin-bottom: 0.75rem; display: block; }
+  .ex-image.missing { height: 180px; display: flex; align-items: center;
+                       justify-content: center; color: #aaa; font-size: 0.85rem; }
+  .ex-sentence { font-size: 1.15rem; line-height: 1.7; }
+  /* hl-cont / hl-simp are applied to per-word spans so karaoke highlight
+     can coexist with the grammar-role background colors. */
+  .word { padding: 0 0.05rem; border-radius: 3px; transition: box-shadow 0.08s ease; }
+  .word.hl-cont { background: #d8ece9; color: #0a4848; font-weight: 600; }
+  .word.hl-simp { background: #fce3a8; color: #6b4400; font-weight: 600; }
+  /* Spoken-word marker: red underline bar that overlays whatever bg is
+     already there, so the grammar role remains visible. */
+  .word.spoken { box-shadow: 0 3px 0 0 #c8102e; }
+  .key {
+    display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap;
+    font-size: 0.85rem; color: #666;
+  }
+  .key span { padding: 0.15rem 0.5rem; border-radius: 3px; }
+  .key .k-cont { background: #d8ece9; color: #0a4848; }
+  .key .k-simp { background: #fce3a8; color: #6b4400; }
+  .key .k-spoken { box-shadow: 0 3px 0 0 #c8102e; padding-bottom: 1px; }
+
+  /* Timeline */
+  .timeline { width: 100%; max-width: 540px; height: 110px; display: block;
+              margin: 0.75rem auto 0.25rem; }
+  .timeline .axis { stroke: #999; stroke-width: 2; }
+  .timeline .wave { stroke: #0a7373; stroke-width: 3; fill: none; }
+  .timeline .bolt { stroke: #c8702a; stroke-width: 3; fill: none;
+                     stroke-linecap: round; stroke-linejoin: round; }
+  .timeline .label-cont { fill: #0a4848; font-weight: 700; font-size: 13px; }
+  .timeline .label-simp { fill: #6b4400; font-weight: 700; font-size: 13px; }
+  .timeline .tick-lbl { fill: #888; font-size: 11px; }
+
+  /* P2 — Controlled practice */
+  .prompt { font-size: 1.1rem; line-height: 1.7; margin-bottom: 0.5rem; }
+  .blank-input { display: inline-block; padding: 0.3rem 0.6rem;
+                  margin: 0 0.2rem; font-size: 1rem;
+                  border: 2px solid #c8c4b6; border-radius: 4px;
+                  background: white; min-width: 110px; font-family: inherit; }
+  .blank-input:focus { outline: none; border-color: #0a7373; }
+  .blank-input.right { border-color: #2a9b5c; background: #e6f4ec; }
+  .blank-input.wrong { border-color: #c8102e; background: #fce8ea; }
+  .feedback { margin-top: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px;
+              font-size: 0.95rem; }
+  .feedback.ok  { background: #e6f4ec; color: #144a2a; border-left: 4px solid #2a9b5c; }
+  .feedback.bad { background: #fce8ea; color: #6c0a1a; border-left: 4px solid #c8102e; }
+  .feedback .expected { font-weight: 600; }
+  .feedback .th { color: #666; margin-top: 0.4rem; font-size: 0.9rem; }
+  .progress { height: 6px; background: #e6e3da; border-radius: 3px;
+              margin: 0.4rem 0; overflow: hidden; }
+  .progress > div { height: 100%; background: #0a7373;
+                    transition: width 0.3s ease; }
+  .progress-label { font-size: 0.78rem; color: #666; text-align: right; }
+
+  /* P3 — Production */
+  .chat { background: white; border-radius: 10px; padding: 1rem;
+          max-height: 320px; overflow-y: auto; border: 1px solid #e6e3da;
+          margin: 0.5rem 0; }
+  .msg { margin: 0.5rem 0; padding: 0.6rem 0.85rem; border-radius: 10px;
+         max-width: 80%; line-height: 1.5; }
+  .msg.user { background: #d8ece9; margin-left: auto; }
+  .msg.bot  { background: #fff8e1; margin-right: auto; }
+
+  .controls { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .controls input[type=text] { flex: 1; padding: 0.6rem 0.8rem; font-size: 1rem;
+                                border: 1px solid #ccc; border-radius: 6px;
+                                font-family: inherit; }
+  button { padding: 0.65rem 1.2rem; font-size: 0.95rem; cursor: pointer;
+           border-radius: 999px; border: none; background: #0a7373; color: white;
+           font-family: inherit; transition: background 0.15s; }
+  button:hover { background: #085959; }
+  button:disabled { background: #aaa; cursor: wait; }
+  button.secondary { background: #c8c4b6; color: #333; }
+  button.secondary:hover { background: #aaa897; }
+
+  .speak-btn { background: transparent; color: #0a7373; padding: 0.25rem 0.5rem;
+               font-size: 0.85rem; border: 1px solid #b0d4cf; }
+  .speak-btn:hover { background: #d8ece9; }
+
+  .status { text-align: center; color: #666; font-size: 0.85rem;
+            min-height: 1.2rem; margin: 0.5rem 0; }
+  .lesson-picker { text-align: center; padding: 2rem; }
+  .lesson-picker button { margin: 0.5rem; }
+
+  .done-card { text-align: center; padding: 1.5rem; }
+  .done-card h2 { color: #0a7373; }
+</style>
+</head>
+<body>
+
+<h1>Kru Eng — Scaffolded Lesson</h1>
+<p class="sub">Presentation → Controlled Practice → Production</p>
+
+<div id="phase-bar" class="phase-bar" hidden>
+  <div class="phase-step" data-phase="p1">1. Presentation</div>
+  <div class="phase-step" data-phase="p2">2. Practice</div>
+  <div class="phase-step" data-phase="p3">3. Production</div>
+</div>
+
+<div id="lesson-meta" hidden>
+  <h2 id="lesson-title" style="margin: 0.5rem 0 0; font-size: 1.1rem;"></h2>
+  <p id="lesson-title-th" class="thai sub" style="margin: 0 0 0.5rem;"></p>
+</div>
+
+<!-- Global language toggles: applies to every phase, persists in localStorage. -->
+<div id="lang-toggle-bar" class="lang-toggle-bar card" hidden>
+  <span class="lang-toggle-label">Show:</span>
+  <div class="lang-toggles" id="global-lang-toggles"></div>
+</div>
+
+<div id="content"></div>
+<p class="status" id="status"></p>
+
+<script>
+const $ = s => document.querySelector(s);
+
+// Two deployments share this file:
+//   - Local docker bot at http://localhost:8000/lesson  (page + API + images)
+//   - Public site at https://krueng.ai/lesson.html      (page + images on CDN,
+//                                                        API still on localhost)
+// We detect by checking the current origin's port.
+const SERVED_BY_BOT = location.port === '8000' || location.hostname.startsWith('localhost') && location.port === '';
+const BOT_BASE = 'http://localhost:8000';
+const API_BASE = SERVED_BY_BOT ? '' : BOT_BASE;
+const IMG_BASE = SERVED_BY_BOT ? '/static/lesson_images' : '/imgs/lessons';
+
+let state = null;     // { session_id, phase, ... }
+let item = null;      // current item from server
+let lessons = [];
+
+// ── Text-to-speech (browser native) ────────────────────────────────────────
+// Plain speak — used by P3 chat or anywhere we don't need word sync.
+function speak(text, lang='en-US') {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang;
+  u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+// Karaoke-style: highlight each .word inside `container` as it's spoken.
+// Uses SpeechSynthesisUtterance.onboundary, which fires per word in
+// Chrome/Edge with charIndex into the original text. Firefox support is
+// patchy — if no boundary events fire the user still gets audio, just
+// without the highlight (graceful degrade).
+function speakWithHighlight(text, container) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const wordEls = Array.from(container.querySelectorAll('.word'));
+  const clearAll = () => wordEls.forEach(el => el.classList.remove('spoken'));
+  clearAll();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.8;
+  u.onboundary = (e) => {
+    if (e.name && e.name !== 'word') return;
+    clearAll();
+    const ci = e.charIndex;
+    for (const el of wordEls) {
+      const s = +el.dataset.start, en = +el.dataset.end;
+      if (ci >= s && ci < en) { el.classList.add('spoken'); break; }
+    }
+  };
+  u.onend = clearAll;
+  u.onerror = clearAll;
+  speechSynthesis.speak(u);
+}
+
+// Tokenize a sentence into word spans, preserving inter-word whitespace
+// and tagging each word that falls inside the continuous/simple highlight
+// ranges. Returns an HTML string.
+function buildWordSpans(sentence, contStr, simpStr) {
+  const findRange = (sub) => {
+    if (!sub) return null;
+    const i = sentence.indexOf(sub);
+    return i < 0 ? null : [i, i + sub.length];
+  };
+  const contR = findRange(contStr);
+  const simpR = findRange(simpStr);
+  const inRange = (start, end, r) =>
+    r && start >= r[0] && end <= r[1];
+
+  let out = '', cursor = 0;
+  const re = /\S+/g;
+  let m;
+  while ((m = re.exec(sentence)) !== null) {
+    const start = m.index, end = start + m[0].length;
+    if (start > cursor) out += sentence.slice(cursor, start);
+    const cls = ['word'];
+    if (inRange(start, end, contR)) cls.push('hl-cont');
+    if (inRange(start, end, simpR)) cls.push('hl-simp');
+    out += `<span class="${cls.join(' ')}" data-start="${start}" data-end="${end}">${m[0]}</span>`;
+    cursor = end;
+  }
+  if (cursor < sentence.length) out += sentence.slice(cursor);
+  return out;
+}
+
+// Language preference is global to the lesson session. Persists in
+// localStorage so a student who only wants Thai+Chinese (or only Chinese)
+// keeps that choice across pages. One #global-lang-toggles widget at the
+// top of the page is the only place to flip them.
+const LANG_META = [
+  { code: 'en', label: 'English' },
+  { code: 'th', label: 'ไทย'     },
+  { code: 'zh', label: '中文'     },
+];
+function getEnabledLangs() {
+  try {
+    const s = localStorage.getItem('lesson_langs');
+    if (s) return JSON.parse(s);
+  } catch (e) {}
+  return ['en', 'th', 'zh'];
+}
+function setEnabledLangs(arr) {
+  try { localStorage.setItem('lesson_langs', JSON.stringify(arr)); }
+  catch (e) {}
+}
+function applyLangPrefs() {
+  const enabled = new Set(getEnabledLangs());
+  document.querySelectorAll('.lang-block').forEach(b => {
+    b.classList.toggle('hidden', !enabled.has(b.dataset.lang));
+  });
+}
+function renderGlobalLangToggles() {
+  const enabled = new Set(getEnabledLangs());
+  const html = LANG_META.map(l => `
+    <label>
+      <input type="checkbox" data-lang="${l.code}"${enabled.has(l.code) ? ' checked' : ''}>
+      ${l.label}
+    </label>`).join('');
+  const container = $('#global-lang-toggles');
+  container.innerHTML = html;
+  $('#lang-toggle-bar').hidden = false;
+  container.querySelectorAll('input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const arr = Array.from(container.querySelectorAll('input:checked'))
+        .map(x => x.dataset.lang);
+      // Always keep at least one language enabled.
+      if (arr.length === 0) { cb.checked = true; return; }
+      setEnabledLangs(arr);
+      applyLangPrefs();
+    });
+  });
+}
+
+// Build a set of lang-blocks ({en, th, zh}) honoring localStorage prefs.
+// `textsByLang` is a {en, th, zh} dict; missing keys are skipped.
+// `audioStem` is the prefix for the MP3 filename — e.g., 'p1_ex1' →
+//   <audio src="/.../audio/p1_ex1_${lang}.mp3">. Pass null to skip audio.
+// `extraHtmlByLang` lets a caller inject phase-specific markup INSIDE a
+// language block (used by P1 to put the karaoke sentence + timeline
+// inside the English block).
+function renderLangBlocks(textsByLang, audioStem, extraHtmlByLang) {
+  const enabled = new Set(getEnabledLangs());
+  const audioBase = audioStem
+    ? `${IMG_BASE}/${state.lesson_id}/audio` : null;
+  return LANG_META.map(l => {
+    const text = textsByLang[l.code];
+    if (!text && !(extraHtmlByLang && extraHtmlByLang[l.code])) return '';
+    const textClass = l.code === 'en' ? '' : ` class="${l.code}"`;
+    const hidden = enabled.has(l.code) ? '' : ' hidden';
+    const audioEl = audioBase
+      ? `<audio controls preload="none" src="${audioBase}/${audioStem}_${l.code}.mp3"></audio>`
+      : '';
+    const extra = (extraHtmlByLang && extraHtmlByLang[l.code]) || '';
+    const textP = text ? `<p${textClass}>${text}</p>` : '';
+    return `
+      <div class="lang-block${hidden}" data-lang="${l.code}">
+        <div class="lang-row">
+          <span class="lang-label">${l.label}</span>
+          ${audioEl}
+        </div>
+        ${extra}
+        ${textP}
+      </div>`;
+  }).join('');
+}
+
+// SVG timeline showing the continuous action as a wavy line and the
+// past-simple action as a lightning-bolt interrupting it at one point.
+// Both labels are pulled from the lesson JSON's highlight_* fields.
+function buildTimelineSvg(contLabel, simpLabel) {
+  // Wave runs from x=70 to x=470 on a 540-wide canvas. The bolt strikes
+  // at x=300 (a bit past centre, so the wave clearly extends past it —
+  // the continuous action was already happening when the simple one hit).
+  return `
+    <svg class="timeline" viewBox="0 0 540 110" aria-hidden="true">
+      <!-- Time axis -->
+      <line class="axis" x1="20" y1="80" x2="520" y2="80"/>
+      <polygon points="520,80 510,75 510,85" fill="#999"/>
+      <text class="tick-lbl" x="20" y="100">past</text>
+      <text class="tick-lbl" x="500" y="100" text-anchor="end">now →</text>
+
+      <!-- Continuous action: wavy line -->
+      <path class="wave" d="M 70 55 Q 110 40 150 55 T 230 55 T 310 55 T 390 55 T 470 55"/>
+      <text class="label-cont" x="270" y="32" text-anchor="middle">${contLabel || ''}</text>
+
+      <!-- Bolt that interrupts the wave at x=300 -->
+      <path class="bolt" d="M 295 38 L 305 55 L 297 55 L 305 72"/>
+      <text class="label-simp" x="300" y="100" text-anchor="middle">${simpLabel || ''}</text>
+    </svg>`;
+}
+
+// ── Phase indicator update ─────────────────────────────────────────────────
+function renderPhaseBar(phase) {
+  $('#phase-bar').hidden = false;
+  const order = ['p1', 'p2', 'p3'];
+  document.querySelectorAll('.phase-step').forEach(el => {
+    el.classList.remove('active', 'done');
+    const idx = order.indexOf(el.dataset.phase);
+    const curIdx = order.indexOf(phase);
+    if (idx === curIdx) el.classList.add('active');
+    else if (curIdx === -1 /* done */ || idx < curIdx) el.classList.add('done');
+  });
+}
+
+// ── Lesson picker ──────────────────────────────────────────────────────────
+async function loadLessonList() {
+  try {
+    const r = await fetch(API_BASE + '/lesson/list');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    lessons = await r.json();
+    renderPicker();
+  } catch (e) {
+    $('#content').innerHTML = `
+      <div class="card" style="border-left:4px solid #c8102e;">
+        <h2 style="color:#c8102e;margin-top:0;">Local Kru Eng bot not reachable</h2>
+        <p>This lesson talks to a local bot running on your teacher's machine
+        at <code>${BOT_BASE}</code>. Start it with:</p>
+        <pre style="background:#f3f0e8;padding:0.75rem;border-radius:6px;overflow-x:auto;">cd watdonchan/docker
+docker compose up -d --build orchestrator</pre>
+        <p style="font-size:0.85rem;color:#888;">Error: ${e.message}</p>
+      </div>`;
+  }
+}
+
+function renderPicker() {
+  $('#content').innerHTML = `
+    <div class="lesson-picker card">
+      <h2>Choose a lesson</h2>
+      ${lessons.map(l => `
+        <button data-id="${l.id}">
+          ${l.title}<br>
+          <small style="opacity:0.85">${l.title_th} · ${l.cefr}</small>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  document.querySelectorAll('.lesson-picker button').forEach(b => {
+    b.addEventListener('click', () => startLesson(b.dataset.id));
+  });
+}
+
+// ── Start / turn ───────────────────────────────────────────────────────────
+async function startLesson(lessonId) {
+  $('#status').textContent = 'Loading…';
+  const r = await fetch(API_BASE + '/lesson/start', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({lesson_id: lessonId}),
+  });
+  const data = await r.json();
+  state = data.state;
+  item = data.item;
+  const l = lessons.find(x => x.id === lessonId);
+  $('#lesson-meta').hidden = false;
+  $('#lesson-title').textContent = l.title;
+  $('#lesson-title-th').textContent = l.title_th + ' · ' + l.cefr;
+  $('#status').textContent = '';
+  renderGlobalLangToggles();
+  render();
+}
+
+async function turn(action, payload) {
+  $('#status').textContent = 'Submitting…';
+  const r = await fetch(API_BASE + '/lesson/turn', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({session_id: state.session_id, action, payload}),
+  });
+  if (!r.ok) {
+    $('#status').textContent = 'Error: ' + r.status;
+    return null;
+  }
+  const data = await r.json();
+  state = data.state;
+  item = data.item;
+  $('#status').textContent = '';
+  return data.feedback;
+}
+
+// ── Render dispatcher ──────────────────────────────────────────────────────
+function render(feedback) {
+  renderPhaseBar(state.phase);
+  if (state.phase === 'p1') renderP1(feedback);
+  else if (state.phase === 'p2') renderP2(feedback);
+  else if (state.phase === 'p3') renderP3(feedback);
+  else if (state.phase === 'done') renderDone();
+}
+
+// ── P1: Presentation ───────────────────────────────────────────────────────
+function renderP1(feedback) {
+  const ex = item.data;
+  const sentenceHtml = buildWordSpans(
+    ex.sentence, ex.highlight_continuous, ex.highlight_simple
+  );
+  const timelineSvg = buildTimelineSvg(
+    ex.highlight_continuous, ex.highlight_simple
+  );
+  // Intro card: 3 plain language blocks, no extras.
+  const introCard = item.intro ? `
+    <div class="card intro-card">
+      ${renderLangBlocks(item.intro, 'intro')}
+    </div>` : '';
+
+  // Example card: English block embeds the karaoke sentence + timeline +
+  // a karaoke "Listen" button (separate from the studio MP3 player).
+  const enExtra = `
+    <div class="ex-sentence" id="sentence">${sentenceHtml}</div>
+    ${timelineSvg}
+    <div class="key">
+      <span class="k-cont">was/were + V-ing — action in progress</span>
+      <span class="k-simp">past simple — interruption</span>
+      <span class="k-spoken">currently being spoken</span>
+    </div>
+    <button class="speak-btn" id="speak" style="margin-top:0.5rem;">🔊 Listen with karaoke</button>`;
+  const langBlocks = renderLangBlocks(
+    { en: '', th: ex.th, zh: ex.zh },  // EN text is rendered as karaoke sentence above
+    `p1_${ex.id}`,
+    { en: enExtra }
+  );
+
+  const imgUrl = `${IMG_BASE}/${state.lesson_id}/${ex.image}`;
+  $('#content').innerHTML = `
+    ${introCard}
+    <div class="card">
+      <img class="ex-image" src="${imgUrl}" alt=""
+           onerror="this.classList.add('missing');this.alt='(image: ${ex.image})';this.removeAttribute('src');">
+      ${langBlocks}
+      <div class="controls">
+        <button id="next">${item.is_last ? 'Continue to Practice →' : 'Next example →'}</button>
+      </div>
+      <div class="progress-label">Example ${state.p1_idx + 1} / ${state.p1_total}</div>
+    </div>
+  `;
+  $('#speak').addEventListener('click',
+    () => speakWithHighlight(ex.sentence, $('#sentence')));
+  $('#next').addEventListener('click', async () => {
+    if ($('#next').disabled) return;
+    $('#next').disabled = true;
+    speechSynthesis.cancel();
+    const fb = await turn('next', null);
+    render(fb);
+  });
+}
+
+// ── P2: Controlled practice ────────────────────────────────────────────────
+function renderP2(feedback) {
+  const ex = item.data;
+  // English block carries the actual <input> blanks. TH/ZH are reference
+  // translations of the same prompt — student reads in their language and
+  // types the English answer.
+  let idx = 0;
+  const enPromptHtml = ex.prompt.replace(/_{3,}/g, () => {
+    const i = idx++;
+    return `<input class="blank-input" data-i="${i}" autocomplete="off">`;
+  });
+  const langBlocks = renderLangBlocks(
+    { en: '', th: ex.prompt_th, zh: ex.prompt_zh },
+    null,  // no audio for P2 — it's a typing exercise
+    { en: `<div class="prompt">${enPromptHtml}</div>` }
+  );
+
+  const accThreshold = Math.round((state.p2_threshold || 0.7) * 100);
+  const accPct = Math.round((state.p2_accuracy || 0) * 100);
+  $('#content').innerHTML = `
+    <div class="card">
+      ${langBlocks}
+      <div class="controls">
+        <button id="submit">Check</button>
+        <button id="skip" class="secondary">Skip</button>
+      </div>
+      <div id="fb"></div>
+    </div>
+    <div class="progress-label">
+      Attempts: ${state.p2_attempts} · Accuracy: ${accPct}% (need ${accThreshold}% over last 10 to unlock production)
+    </div>
+    <div class="progress"><div style="width:${Math.min(100, accPct)}%"></div></div>
+  `;
+  const inputs = document.querySelectorAll('.blank-input');
+  inputs[0]?.focus();
+  inputs.forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') $('#submit').click();
+    });
+  });
+  $('#submit').addEventListener('click', async () => {
+    // Guard against double-submit. The server advances p2_idx on the first
+    // submit, so a second click would grade the same answers against the
+    // NEXT exercise's key — producing a stale-feedback bug.
+    if ($('#submit').disabled) return;
+    $('#submit').disabled = true;
+    $('#skip').disabled = true;
+    const answers = Array.from(inputs).map(i => i.value);
+    const fb = await turn('submit', {answers});
+    if (!fb) {
+      $('#submit').disabled = false;
+      $('#skip').disabled = false;
+      return;
+    }
+    inputs.forEach((inp, i) => {
+      inp.classList.add(fb.per_blank[i] ? 'right' : 'wrong');
+      inp.disabled = true;
+    });
+    const cls = fb.correct ? 'ok' : 'bad';
+    const head = fb.correct
+      ? '✓ Correct'
+      : `✗ Not quite. Expected: <span class="expected">${fb.expected.join(' / ')}</span>`;
+    // Per-language explanation rows inside the feedback box.
+    const enabled = new Set(getEnabledLangs());
+    const explanationRows = [
+      ['th', fb.explanation_th],
+      ['zh', fb.explanation_zh],
+    ].filter(([l, t]) => t && enabled.has(l))
+     .map(([l, t]) => `<div class="${l}" style="margin-top:0.4rem;">${t}</div>`)
+     .join('');
+    $('#fb').innerHTML = `
+      <div class="feedback ${cls}">
+        <div>${head}</div>
+        ${explanationRows}
+        <div style="margin-top:0.5rem;">
+          <button id="cont">${fb.phase_change ? 'Continue to Production →' : 'Next item →'}</button>
+        </div>
+      </div>
+    `;
+    if (fb.phase_change === 'p2->p3') {
+      $('#fb').insertAdjacentHTML('beforeend',
+        `<div class="feedback ok" style="margin-top:0.5rem;">
+           <div>${fb.msg}</div>
+           ${enabled.has('th') && fb.msg_th ? `<div class="th">${fb.msg_th}</div>` : ''}
+         </div>`);
+    }
+    $('#cont').addEventListener('click', () => render());
+  });
+  $('#skip').addEventListener('click', async () => {
+    await turn('skip', null);
+    render();
+  });
+}
+
+// ── P3: Freer production ───────────────────────────────────────────────────
+function renderP3(feedback) {
+  const scen = item.data;
+  const history = item.history || [];
+  const isFirst = item.is_first_turn;
+  // Opener rendered in 3 languages with audio. Use scen.id as the audio
+  // stem so it matches the pre-generated p3_s1_*.mp3 etc.
+  const openerBlocks = renderLangBlocks(
+    { en: scen.opener, th: scen.opener_th, zh: scen.opener_zh },
+    `p3_${scen.id}`
+  );
+  // The live chat history stays English-only — it's the actual LLM dialogue.
+  // On first render the opener is duplicated as the first bot msg so the
+  // chat scrolls cleanly when the student replies.
+  const chatHtml = (isFirst ? [{role: 'assistant', content: scen.opener}] : history)
+    .map(m => `<div class="msg ${m.role === 'user' ? 'user' : 'bot'}">${m.content}</div>`)
+    .join('');
+  $('#content').innerHTML = `
+    <div class="card">
+      <div style="font-size:0.85rem;color:#666;margin-bottom:0.5rem;">
+        Scenario · ${scen.target_pattern}
+      </div>
+      ${openerBlocks}
+      <hr style="border:0;border-top:1px solid #eee;margin:0.75rem 0;">
+      <div class="chat" id="chat">${chatHtml}</div>
+      <div class="controls">
+        <input id="msg" type="text" placeholder="Reply in English using past continuous…" autocomplete="off">
+        <button id="send">Send</button>
+      </div>
+      <div class="progress-label">Turn ${state.p3_turns} / ${state.p3_target_turns}</div>
+    </div>
+  `;
+  const chat = $('#chat');
+  chat.scrollTop = chat.scrollHeight;
+  const msgInput = $('#msg');
+  msgInput.focus();
+  msgInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('#send').click();
+  });
+  $('#send').addEventListener('click', async () => {
+    const msg = msgInput.value.trim();
+    if (!msg) return;
+    msgInput.value = '';
+    msgInput.disabled = true;
+    $('#send').disabled = true;
+    chat.insertAdjacentHTML('beforeend',
+      `<div class="msg user">${msg}</div>`);
+    chat.scrollTop = chat.scrollHeight;
+    const fb = await turn('submit', {message: msg});
+    msgInput.disabled = false;
+    $('#send').disabled = false;
+    if (fb && fb.reply) {
+      render(fb);
+    }
+  });
+}
+
+// ── Done ───────────────────────────────────────────────────────────────────
+function renderDone() {
+  $('#content').innerHTML = `
+    <div class="card done-card">
+      <h2>🎉 Lesson complete</h2>
+      <p>You worked through Presentation, Controlled Practice, and Production.</p>
+      <p>P2 accuracy: <strong>${Math.round((state.p2_accuracy || 0) * 100)}%</strong>
+         over ${state.p2_attempts} attempts.</p>
+      <p>Production turns: <strong>${state.p3_turns}</strong></p>
+      <button onclick="location.reload()">Start another lesson</button>
+    </div>
+  `;
+}
+
+loadLessonList();
+</script>
+
+</body>
+</html>

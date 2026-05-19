@@ -1,0 +1,31 @@
+.env
+.env.local
+.env.*.local
+
+# Voice reference clips — these are personal/identifying audio.
+# The README.md in voices/ explains the format; clips themselves stay local.
+voices/*.wav
+voices/*.mp3
+voices/*.flac
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker volume artifacts (if you ever bind-mount one of the named volumes)
+wiki_index/
+ollama_data/
+tts_cache/

@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kru Eng Local Bot</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun",
+         "Noto Sans Thai", sans-serif; max-width: 720px; margin: 1rem auto;
+         padding: 1rem; background: #f7f5ef; color: #1a1a1a; }
+  h1 { color: #0a7373; margin: 0 0 0.25rem; text-align: center; }
+  .sub { color: #666; font-size: 0.9rem; margin: 0 0 1rem; text-align: center; }
+
+  /* Talking face */
+  .face-wrap { display: flex; justify-content: center; margin: 0.5rem 0 1rem; }
+  .face { width: 200px; height: 200px; }
+  .face .mouth-shape { display: none; }
+  .face .mouth-shape.active { display: inline; }
+  /* Subtle idle breathing */
+  .face .head-group { transform-origin: 100px 100px;
+                       animation: breathe 4s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { transform: scale(1); }
+                       50%      { transform: scale(1.015); } }
+  /* Eye blink */
+  .face .eyelid { transform-origin: center; transform: scaleY(0);
+                   animation: blink 5.5s infinite; }
+  @keyframes blink { 0%, 96%, 100% { transform: scaleY(0); }
+                     98% { transform: scaleY(1); } }
+
+  .chat { background: white; border-radius: 10px; padding: 1rem; min-height: 220px;
+          max-height: 380px; overflow-y: auto; border: 1px solid #e6e3da; }
+  .msg { margin: 0.5rem 0; padding: 0.65rem 0.9rem; border-radius: 10px;
+         max-width: 80%; line-height: 1.5; }
+  .msg.user { background: #d8ece9; margin-left: auto; }
+  .msg.bot  { background: #fff8e1; margin-right: auto; }
+  .msg.err  { background: #fdecea; color: #8b1c1c; }
+  .controls { text-align: center; margin: 1rem 0 0.5rem; }
+  button { padding: 0.85rem 1.5rem; font-size: 1rem; cursor: pointer;
+           border-radius: 999px; border: none; background: #0a7373; color: white;
+           font-family: inherit; transition: background 0.15s; }
+  button:hover { background: #085959; }
+  button.recording { background: #c8102e; animation: pulse 1s infinite; }
+  button:disabled { background: #888; cursor: wait; }
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.55 } }
+  .status { text-align: center; color: #666; font-size: 0.85rem; min-height: 1.2rem; }
+  .text-input { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .text-input input { flex: 1; padding: 0.6rem 0.8rem; font-size: 1rem;
+                       border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
+  .text-input button { padding: 0.6rem 1rem; }
+  .health { font-size: 0.78rem; color: #888; text-align: right; margin-top: 1rem; }
+  .health span { display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem;
+                 border-radius: 4px; background: #eee; }
+  .health span.ok { background: #d4edd9; color: #0a5e1f; }
+  .health span.down { background: #fdecea; color: #8b1c1c; }
+</style>
+</head>
+<body>
+
+<h1>🎙 Kru Eng Local Bot</h1>
+<p class="sub">Hold the button to talk · everything runs on-premise · PDPA-safe</p>
+
+<div class="face-wrap">
+  <!-- 9 Preston-Blair mouth shapes (A–H + X). Mouth is centered around (100, 130).
+       Only the .active shape is rendered; the rest are display:none. -->
+  <svg class="face" viewBox="0 0 200 200" aria-hidden="true">
+    <g class="head-group">
+      <!-- Hair back layer — long, falls below the chin on both sides -->
+      <path d="M 26 105 Q 22 70 50 45 Q 70 25 100 25 Q 130 25 150 45 Q 178 70 174 105
+               Q 174 140 168 175 Q 145 168 130 168 Q 130 140 130 110
+               L 70 110 Q 70 140 70 168 Q 55 168 32 175 Q 26 140 26 105 Z"
+            fill="#241814"/>
+      <!-- Head (slightly oval; warm Thai skin tone) -->
+      <ellipse cx="100" cy="103" rx="72" ry="76" fill="#eac8a6" stroke="#9a6a48" stroke-width="1.5"/>
+      <!-- Chin shaping — subtle shadow under jaw -->
+      <ellipse cx="100" cy="166" rx="38" ry="10" fill="#d9b896" opacity="0.5"/>
+      <!-- Side-swept bangs across the forehead -->
+      <path d="M 32 78 Q 55 50 100 50 Q 145 50 168 78 Q 160 60 130 56
+               Q 110 75 90 78 Q 70 80 55 72 Q 42 70 32 78 Z"
+            fill="#241814"/>
+      <!-- A small frangipani/leelawadee flower on the right hair (Lanna touch) -->
+      <g transform="translate(155, 75)">
+        <circle r="6" fill="#fff8e0"/>
+        <circle cx="-4" cy="-3" r="4" fill="#fff8e0"/>
+        <circle cx="4" cy="-3" r="4" fill="#fff8e0"/>
+        <circle cx="-4" cy="3" r="4" fill="#fff8e0"/>
+        <circle cx="4" cy="3" r="4" fill="#fff8e0"/>
+        <circle r="2" fill="#f5c842"/>
+      </g>
+      <!-- Cheeks (soft natural blush) -->
+      <ellipse cx="58" cy="128" rx="11" ry="6" fill="#e8a896" opacity="0.45"/>
+      <ellipse cx="142" cy="128" rx="11" ry="6" fill="#e8a896" opacity="0.45"/>
+      <!-- Eyebrows (thin, gently arched, more feminine) -->
+      <path d="M 60 84 Q 73 78 86 84" stroke="#2a1810" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 114 84 Q 127 78 140 84" stroke="#2a1810" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Eyes — almond-shaped, slight upturn, with lashes -->
+      <g>
+        <!-- Eye white (almond) -->
+        <path d="M 60 100 Q 73 92 86 100 Q 73 108 60 100 Z" fill="white" stroke="#3b2418" stroke-width="1.5"/>
+        <!-- Iris (warm brown) -->
+        <circle cx="73" cy="100" r="5" fill="#5a3820"/>
+        <!-- Pupil + small highlight -->
+        <circle cx="73" cy="100" r="2.5" fill="#1a0e08"/>
+        <circle cx="71.5" cy="98.5" r="1" fill="white"/>
+        <!-- Upper lashes (small strokes) -->
+        <path d="M 61 96 L 60 92 M 67 94 L 66 90 M 73 93 L 73 89 M 79 94 L 80 90 M 85 96 L 86 92"
+              stroke="#1a0e08" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- Eyelid (blink) -->
+        <ellipse class="eyelid" cx="73" cy="100" rx="13" ry="8" fill="#eac8a6"/>
+      </g>
+      <g>
+        <path d="M 114 100 Q 127 92 140 100 Q 127 108 114 100 Z" fill="white" stroke="#3b2418" stroke-width="1.5"/>
+        <circle cx="127" cy="100" r="5" fill="#5a3820"/>
+        <circle cx="127" cy="100" r="2.5" fill="#1a0e08"/>
+        <circle cx="125.5" cy="98.5" r="1" fill="white"/>
+        <path d="M 115 96 L 114 92 M 121 94 L 120 90 M 127 93 L 127 89 M 133 94 L 134 90 M 139 96 L 140 92"
+              stroke="#1a0e08" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse class="eyelid" cx="127" cy="100" rx="13" ry="8" fill="#eac8a6"/>
+      </g>
+      <!-- Nose — small button -->
+      <path d="M 100 115 Q 97 130 100 134 Q 103 130 100 115 Z" fill="#d4a888" opacity="0.7"/>
+      <ellipse cx="98" cy="133" rx="1.5" ry="1" fill="#9a6a48" opacity="0.4"/>
+      <ellipse cx="102" cy="133" rx="1.5" ry="1" fill="#9a6a48" opacity="0.4"/>
+      <!-- Small gold stud earrings -->
+      <circle cx="29" cy="115" r="2.5" fill="#d4a040" stroke="#a07020" stroke-width="0.5"/>
+      <circle cx="171" cy="115" r="2.5" fill="#d4a040" stroke="#a07020" stroke-width="0.5"/>
+
+      <!-- Mouth shapes — only one .active at a time -->
+      <!-- A: rest, slight smile, lips together -->
+      <g id="m-A" class="mouth-shape active">
+        <path d="M 80 148 Q 100 154 120 148" stroke="#7a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- B: closed lips (M, B, P) -->
+      <g id="m-B" class="mouth-shape">
+        <line x1="78" y1="148" x2="122" y2="148" stroke="#7a3a2a" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- C: slightly open (EE, IH) -->
+      <g id="m-C" class="mouth-shape">
+        <ellipse cx="100" cy="148" rx="22" ry="4" fill="#3a1a0a"/>
+        <path d="M 78 146 Q 100 142 122 146" stroke="#7a3a2a" stroke-width="2" fill="none"/>
+      </g>
+      <!-- D: open (AA, AH) -->
+      <g id="m-D" class="mouth-shape">
+        <ellipse cx="100" cy="150" rx="20" ry="13" fill="#3a1a0a"/>
+        <path d="M 80 144 Q 100 140 120 144" stroke="#7a3a2a" stroke-width="2" fill="none"/>
+      </g>
+      <!-- E: rounded (OH) -->
+      <g id="m-E" class="mouth-shape">
+        <ellipse cx="100" cy="150" rx="14" ry="11" fill="#3a1a0a"/>
+        <path d="M 86 144 Q 100 141 114 144" stroke="#7a3a2a" stroke-width="2" fill="none"/>
+      </g>
+      <!-- F: tight pucker (OO, W, UH) -->
+      <g id="m-F" class="mouth-shape">
+        <ellipse cx="100" cy="150" rx="9" ry="9" fill="#3a1a0a"/>
+        <ellipse cx="100" cy="150" rx="9" ry="9" fill="none" stroke="#7a3a2a" stroke-width="2"/>
+      </g>
+      <!-- G: bottom lip on top teeth (F, V) -->
+      <g id="m-G" class="mouth-shape">
+        <rect x="84" y="143" width="32" height="5" fill="white" stroke="#7a3a2a" stroke-width="1"/>
+        <path d="M 80 152 Q 100 158 120 152" stroke="#7a3a2a" stroke-width="3" fill="#d89090"/>
+      </g>
+      <!-- H: tongue raised (L, voiced TH) -->
+      <g id="m-H" class="mouth-shape">
+        <ellipse cx="100" cy="150" rx="17" ry="9" fill="#3a1a0a"/>
+        <ellipse cx="100" cy="153" rx="7" ry="3" fill="#d35050"/>
+      </g>
+      <!-- X: rest/silent (gentle closed) -->
+      <g id="m-X" class="mouth-shape">
+        <path d="M 82 148 Q 100 152 118 148" stroke="#7a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<div class="chat" id="chat"></div>
+
+<div class="controls">
+  <button id="rec">🎙 Hold to talk</button>
+</div>
+<p class="status" id="status">Ready</p>
+
+<div class="text-input">
+  <input id="textIn" type="text" placeholder="…or type a message" autocomplete="off">
+  <button id="send">Send</button>
+</div>
+
+<div class="health" id="health"></div>
+
+<audio id="player" hidden></audio>
+
+<script>
+const $ = s => document.querySelector(s);
+const recBtn = $('#rec'), chat = $('#chat'), status = $('#status'),
+      textIn = $('#textIn'), sendBtn = $('#send'), player = $('#player');
+
+let mediaRec, chunks, history = [];
+
+// ---- Face animation -------------------------------------------------------
+const MOUTH_SHAPES = ['A','B','C','D','E','F','G','H','X'];
+let _activeShape = 'A';
+function setMouth(shape) {
+  if (!MOUTH_SHAPES.includes(shape)) shape = 'X';
+  if (shape === _activeShape) return;
+  document.getElementById('m-' + _activeShape)?.classList.remove('active');
+  document.getElementById('m-' + shape)?.classList.add('active');
+  _activeShape = shape;
+}
+
+// Web Audio context + analyser for amplitude fallback. Created once and
+// reused (createMediaElementSource can only be called once per element).
+let _audioCtx, _analyser, _amplData;
+function ensureAudioGraph() {
+  if (_audioCtx) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  _audioCtx = new Ctx();
+  const src = _audioCtx.createMediaElementSource(player);
+  _analyser = _audioCtx.createAnalyser();
+  _analyser.fftSize = 256;
+  src.connect(_analyser);
+  src.connect(_audioCtx.destination);
+  _amplData = new Uint8Array(_analyser.frequencyBinCount);
+}
+
+let _animFrame = null;
+function stopAnim() {
+  if (_animFrame) cancelAnimationFrame(_animFrame);
+  _animFrame = null;
+  setMouth('X');
+}
+
+function animateWithVisemes(visemes) {
+  let cueIdx = 0;
+  function tick() {
+    if (player.paused || player.ended) { stopAnim(); return; }
+    const t = player.currentTime;
+    // visemes are sorted; advance cueIdx until current cue contains t
+    while (cueIdx < visemes.length - 1 && visemes[cueIdx].end <= t) cueIdx++;
+    const cue = visemes[cueIdx];
+    setMouth(cue && cue.start <= t && t < cue.end ? cue.shape : 'X');
+    _animFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function animateWithAmplitude() {
+  ensureAudioGraph();
+  if (!_analyser) { setMouth('D'); return; }  // no Web Audio: just stay open
+  function tick() {
+    if (player.paused || player.ended) { stopAnim(); return; }
+    _analyser.getByteFrequencyData(_amplData);
+    let sum = 0;
+    for (let i = 0; i < _amplData.length; i++) sum += _amplData[i];
+    const avg = sum / _amplData.length;
+    let shape = 'X';
+    if (avg > 90) shape = 'D';
+    else if (avg > 60) shape = 'E';
+    else if (avg > 35) shape = 'C';
+    else if (avg > 18) shape = 'B';
+    setMouth(shape);
+    _animFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function addMsg(who, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function browserSpeak(text) {
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.95;
+  speechSynthesis.speak(u);
+}
+
+function playAudioWithFace(b64, visemes) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const blob = new Blob([arr], { type: 'audio/wav' });
+  player.src = URL.createObjectURL(blob);
+  ensureAudioGraph();
+  if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+  player.onplay = () => {
+    stopAnim();
+    if (Array.isArray(visemes) && visemes.length) animateWithVisemes(visemes);
+    else animateWithAmplitude();
+  };
+  player.onended = stopAnim;
+  player.onerror = stopAnim;
+  player.play().catch(() => stopAnim());
+}
+
+// ---- Networking -----------------------------------------------------------
+
+async function speakViaServer(text) {
+  try {
+    const r = await fetch('/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (data.audio) { playAudioWithFace(data.audio, data.visemes); return; }
+  } catch (_) { /* fall through */ }
+  browserSpeak(text);
+}
+
+async function startRec() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRec = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    chunks = [];
+    mediaRec.ondataavailable = e => chunks.push(e.data);
+    mediaRec.onstop = uploadAudio;
+    mediaRec.start();
+    recBtn.classList.add('recording');
+    recBtn.textContent = '🔴 Recording — release to send';
+  } catch (e) {
+    addMsg('err', 'Microphone access denied: ' + e.message);
+  }
+}
+
+function stopRec() {
+  if (mediaRec && mediaRec.state === 'recording') mediaRec.stop();
+  recBtn.classList.remove('recording');
+  recBtn.textContent = '🎙 Hold to talk';
+}
+
+async function uploadAudio() {
+  status.textContent = 'Transcribing and thinking…';
+  recBtn.disabled = true;
+  const blob = new Blob(chunks, { type: 'audio/webm' });
+  const fd = new FormData();
+  fd.append('audio', blob, 'rec.webm');
+  try {
+    const r = await fetch('/converse', { method: 'POST', body: fd });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (data.user) addMsg('user', data.user);
+    if (data.bot)  addMsg('bot', data.bot);
+    history.push({ role: 'user', content: data.user });
+    history.push({ role: 'assistant', content: data.bot });
+    if (data.audio) playAudioWithFace(data.audio, data.visemes);
+    else browserSpeak(data.bot);
+    status.textContent = 'Ready';
+  } catch (e) {
+    addMsg('err', 'Error: ' + e.message);
+    status.textContent = 'Error — try again';
+  } finally {
+    recBtn.disabled = false;
+  }
+}
+
+async function sendText() {
+  const text = textIn.value.trim();
+  if (!text) return;
+  textIn.value = '';
+  addMsg('user', text);
+  status.textContent = 'Thinking…';
+  sendBtn.disabled = true;
+
+  // Empty bot bubble that fills as tokens stream in.
+  const botDiv = document.createElement('div');
+  botDiv.className = 'msg bot';
+  chat.appendChild(botDiv);
+  chat.scrollTop = chat.scrollHeight;
+
+  let reply = '';
+  try {
+    const r = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    let streamErr = null;
+    outer: while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const events = buf.split('\n\n');
+      buf = events.pop() || '';
+      for (const evt of events) {
+        if (!evt.startsWith('data: ')) continue;
+        const obj = JSON.parse(evt.slice(6));
+        if (obj.error) { streamErr = obj.error; break outer; }
+        if (obj.chunk) {
+          reply += obj.chunk;
+          botDiv.textContent = reply;
+          chat.scrollTop = chat.scrollHeight;
+        }
+        if (obj.done) break outer;
+      }
+    }
+    if (streamErr) throw new Error(streamErr);
+    if (!reply) throw new Error('empty reply');
+
+    history.push({ role: 'user', content: text });
+    history.push({ role: 'assistant', content: reply });
+
+    status.textContent = 'Synthesizing…';
+    await speakViaServer(reply);
+    status.textContent = 'Ready';
+  } catch (e) {
+    botDiv.remove();
+    addMsg('err', 'Error: ' + e.message);
+    status.textContent = 'Error — try again';
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+async function checkHealth() {
+  try {
+    const r = await fetch('/health');
+    const data = await r.json();
+    const parts = Object.entries(data).map(([name, status]) => {
+      const cls = status === 'ok' ? 'ok' : 'down';
+      return `<span class="${cls}">${name}: ${status}</span>`;
+    });
+    $('#health').innerHTML = parts.join('');
+  } catch (e) {
+    $('#health').textContent = 'health check failed';
+  }
+}
+
+recBtn.addEventListener('mousedown', startRec);
+recBtn.addEventListener('mouseup', stopRec);
+recBtn.addEventListener('mouseleave', stopRec);
+recBtn.addEventListener('touchstart', e => { e.preventDefault(); startRec(); });
+recBtn.addEventListener('touchend',   e => { e.preventDefault(); stopRec();  });
+sendBtn.addEventListener('click', sendText);
+textIn.addEventListener('keydown', e => { if (e.key === 'Enter') sendText(); });
+
+checkHealth();
+setInterval(checkHealth, 15000);
+</script>
+</body>
+</html>

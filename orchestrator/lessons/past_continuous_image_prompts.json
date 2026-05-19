@@ -1,0 +1,29 @@
+{
+  "style_prefix": "Warm watercolor and ink children's book illustration, Miyazaki-inspired warmth, Studio Ghibli meets Thai folk art aesthetic. All people are Southeast Asian Thai with warm brown skin and dark hair. Northern Thailand / Lanna setting. No text, no captions, no letters in the image. ",
+  "style_suffix": " Soft natural light, painterly, gentle palette, atmospheric, no harsh shadows.",
+  "settings": {
+    "guidance": 3.5,
+    "num_inference_steps": 28,
+    "aspect_ratio": "16:9",
+    "output_format": "png",
+    "model": "black-forest-labs/flux-dev"
+  },
+  "output_dir": "docker/orchestrator/static/lesson_images/past_continuous",
+  "images": {
+    "sunday_market": {
+      "prompt": "Chiang Mai Sunday Night Market on Ratchadamnoen Road at dusk. A young woman walks among rows of craft stalls and street food carts, paper lanterns glow overhead, ancient temple wall and warm yellow lamps in the background. She has turned her head slightly, recognizing an old friend across the crowd."
+    },
+    "khao_soi": {
+      "prompt": "A young Thai woman sits at a small wooden table in a Chiang Mai street-food shop, eating khao soi noodles from a steaming bowl with crispy noodles on top. Her phone lies on the table beside her, screen lit up with an incoming call. Warm overhead lamp, lime wedges and pickled vegetables in small dishes."
+    },
+    "songthaew_doi_suthep": {
+      "prompt": "View from inside a red songthaew pickup-truck taxi climbing the winding mountain road up Doi Suthep in Chiang Mai. Two passengers sit in the back, looking out as the first heavy raindrops hit the road. Misty jungle on both sides, golden temple stupa barely visible through the trees in the distance."
+    },
+    "nimman_cafe": {
+      "prompt": "A young Thai student studies at a wooden table in a modern Nimmanhaemin café in Chiang Mai. Open laptop and notebooks with English grammar exercises in front of him, half-finished iced coffee. The lights have just gone out — the screen glow is the only light, surprised expression, the café staff in the background reaching for candles."
+    },
+    "wat_phra_singh": {
+      "prompt": "Inside the main viharn of Wat Phra Singh temple in Chiang Mai. A row of saffron-robed monks chant from prayer books, eyes lowered. Through the open temple doors behind them, dark monsoon rain has just started falling on the courtyard. Ornate gold and red Lanna woodwork, candle and incense smoke rising."
+    }
+  }
+}

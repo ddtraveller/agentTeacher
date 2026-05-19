@@ -1,0 +1,343 @@
+{
+  "id": "past_continuous",
+  "title": "Past Continuous: Interrupted Actions",
+  "title_th": "Past Continuous: เหตุการณ์ที่ถูกขัดจังหวะ",
+  "cefr": "A2",
+  "target_structure": "S + was/were + V-ing + when + S + V-ed",
+  "can_do": "I can describe what I was doing when something else happened.",
+  "can_do_th": "ฉันสามารถอธิบายได้ว่าฉันกำลังทำอะไรอยู่ตอนที่มีอย่างอื่นเกิดขึ้น",
+  "p1_intro": {
+    "en": "Today we'll practise the past continuous. Use was/were + V-ing for an action that was in progress at a past moment. Often a past simple action interrupts it.",
+    "th": "วันนี้เราจะฝึก past continuous ใช้ was/were + V-ing สำหรับการกระทำที่กำลังเกิดขึ้นในอดีต และมักจะถูกขัดจังหวะด้วย past simple",
+    "zh": "今天我们来练习过去进行时（Past Continuous）。用 was/were + 动词-ing 来表达过去某个时刻正在进行的动作，通常会被一个一般过去时的动作打断。"
+  },
+  "p1_examples": [
+    {
+      "id": "ex1",
+      "sentence": "I was walking through the Sunday Night Market when I saw an old friend.",
+      "th": "ฉันกำลังเดินอยู่ที่ถนนคนเดินวันอาทิตย์ตอนที่ฉันเจอเพื่อนเก่า",
+      "highlight_continuous": "was walking",
+      "highlight_simple": "saw",
+      "image": "sunday_market.jpg",
+      "zh": "我正在逛周日夜市的时候，看见了一位老朋友。"
+    },
+    {
+      "id": "ex2",
+      "sentence": "She was eating khao soi when her phone rang.",
+      "th": "เธอกำลังกินข้าวซอยอยู่ตอนที่โทรศัพท์ดัง",
+      "highlight_continuous": "was eating",
+      "highlight_simple": "rang",
+      "image": "khao_soi.jpg",
+      "zh": "她正在吃 khao soi 的时候，手机响了。"
+    },
+    {
+      "id": "ex3",
+      "sentence": "We were riding a songthaew up Doi Suthep when it started to rain.",
+      "th": "พวกเรากำลังนั่งสองแถวขึ้นดอยสุเทพตอนที่ฝนเริ่มตก",
+      "highlight_continuous": "were riding",
+      "highlight_simple": "started",
+      "image": "songthaew_doi_suthep.jpg",
+      "zh": "我们正坐着双条车上素帖山，这时候开始下雨了。"
+    },
+    {
+      "id": "ex4",
+      "sentence": "He was studying at a café in Nimman when the power went out.",
+      "th": "เขากำลังอ่านหนังสืออยู่ที่คาเฟ่ในนิมมานตอนที่ไฟดับ",
+      "highlight_continuous": "was studying",
+      "highlight_simple": "went out",
+      "image": "nimman_cafe.jpg",
+      "zh": "他正在尼曼路的咖啡馆学习，这时候停电了。"
+    },
+    {
+      "id": "ex5",
+      "sentence": "The monks were chanting at Wat Phra Singh when the rain began.",
+      "th": "พระกำลังสวดมนต์อยู่ที่วัดพระสิงห์ตอนที่ฝนเริ่มตก",
+      "highlight_continuous": "were chanting",
+      "highlight_simple": "began",
+      "image": "wat_phra_singh.jpg",
+      "zh": "僧侣们正在帕辛寺诵经，这时候下起雨来。"
+    }
+  ],
+  "p1_notice_questions": [
+    {
+      "q": "What part of each sentence describes the ONGOING action — what was in progress?",
+      "q_th": "ส่วนไหนของประโยคบอกถึงการกระทำที่กำลังเกิดขึ้น?",
+      "expected_pattern": "was/were + V-ing"
+    },
+    {
+      "q": "What part describes the INTERRUPTION — what happened suddenly?",
+      "q_th": "ส่วนไหนบอกถึงเหตุการณ์ที่มาขัดจังหวะ?",
+      "expected_pattern": "past simple verb"
+    }
+  ],
+  "p2_exercises": [
+    {
+      "id": "pc_01",
+      "prompt": "I _____ (cook) dinner when the phone _____ (ring).",
+      "prompt_th": "ฉัน _____ (cook) อาหารเย็นตอนที่โทรศัพท์ _____ (ring)",
+      "blanks": [
+        {
+          "accept": [
+            "was cooking"
+          ]
+        },
+        {
+          "accept": [
+            "rang"
+          ]
+        }
+      ],
+      "explanation_th": "ใช้ past continuous (was cooking) สำหรับการกระทำที่กำลังเกิดขึ้น และ past simple (rang) สำหรับเหตุการณ์ที่มาขัดจังหวะ",
+      "prompt_zh": "我 _____ (cook) 晚餐的时候，电话 _____ (ring)。",
+      "explanation_zh": "过去进行时（was cooking）表示正在进行的动作；一般过去时（rang）表示打断它的事件。"
+    },
+    {
+      "id": "pc_02",
+      "prompt": "While she _____ (wait) for the bus at Tha Phae Gate, it _____ (start) to rain.",
+      "prompt_th": "ขณะที่เธอ _____ (wait) รถเมล์อยู่ที่ประตูท่าแพ ฝน _____ (start) ตก",
+      "blanks": [
+        {
+          "accept": [
+            "was waiting"
+          ]
+        },
+        {
+          "accept": [
+            "started"
+          ]
+        }
+      ],
+      "explanation_th": "หลัง While ใช้ past continuous สำหรับการกระทำที่กำลังเกิด แล้วตามด้วย past simple",
+      "prompt_zh": "当她在塔佩门 _____ (wait) 公交车时，雨 _____ (start) 下了起来。",
+      "explanation_zh": "在 While 之后用过去进行时表示正在进行的动作，主句用一般过去时。"
+    },
+    {
+      "id": "pc_03",
+      "prompt": "At 8 PM last night, I _____ (study) for my exam.",
+      "prompt_th": "ตอน 2 ทุ่มเมื่อคืน ฉัน _____ (study) สำหรับสอบ",
+      "blanks": [
+        {
+          "accept": [
+            "was studying"
+          ]
+        }
+      ],
+      "explanation_th": "เวลาเจาะจงในอดีต (At 8 PM last night) บ่งบอกว่าการกระทำกำลังดำเนินอยู่ → past continuous",
+      "prompt_zh": "昨晚 8 点，我 _____ (study) 准备考试。",
+      "explanation_zh": "过去某个具体时间（At 8 PM last night）表明动作正在进行 → 过去进行时。"
+    },
+    {
+      "id": "pc_04",
+      "prompt": "They _____ (watch) TV when the power _____ (go) out.",
+      "prompt_th": "พวกเขา _____ (watch) ทีวีอยู่ตอนที่ไฟ _____ (go) ดับ",
+      "blanks": [
+        {
+          "accept": [
+            "were watching"
+          ]
+        },
+        {
+          "accept": [
+            "went"
+          ]
+        }
+      ],
+      "explanation_th": "การดูทีวีกำลังดำเนินอยู่ (past continuous), แล้วถูกขัดจังหวะด้วยไฟดับ (past simple)",
+      "prompt_zh": "他们正在 _____ (watch) 电视，这时候电 _____ (go) 突然停了。",
+      "explanation_zh": "看电视是正在进行的动作（过去进行时），被停电打断（一般过去时）。"
+    },
+    {
+      "id": "pc_05",
+      "prompt": "What _____ you _____ (do) at 7 PM yesterday?",
+      "prompt_th": "ตอน 1 ทุ่มเมื่อวาน คุณ _____ _____ (do) อะไรอยู่?",
+      "blanks": [
+        {
+          "accept": [
+            "were"
+          ]
+        },
+        {
+          "accept": [
+            "doing"
+          ]
+        }
+      ],
+      "explanation_th": "คำถาม past continuous: What + were/was + S + V-ing?",
+      "prompt_zh": "昨天晚上 7 点你 _____ _____ (do) 什么？",
+      "explanation_zh": "过去进行时疑问句：What + were/was + 主语 + V-ing？"
+    },
+    {
+      "id": "pc_06",
+      "prompt": "We _____ (eat) at the night bazaar when we _____ (meet) Khun Som.",
+      "prompt_th": "พวกเรา _____ (eat) อยู่ที่ไนท์บาซาร์ตอนที่พวกเรา _____ (meet) คุณสม",
+      "blanks": [
+        {
+          "accept": [
+            "were eating"
+          ]
+        },
+        {
+          "accept": [
+            "met"
+          ]
+        }
+      ],
+      "explanation_th": "การกินกำลังดำเนินอยู่ → past continuous; การพบกันคือเหตุการณ์ที่เกิดขึ้น → past simple",
+      "prompt_zh": "我们正在夜市 _____ (eat) 的时候，_____ (meet) 到了 Som 先生。",
+      "explanation_zh": "吃饭是正在进行的动作 → 过去进行时；遇见是一个事件 → 一般过去时。"
+    },
+    {
+      "id": "pc_07",
+      "prompt": "While he _____ (drive) to Mae Sa, his tire _____ (go) flat.",
+      "prompt_th": "ขณะที่เขา _____ (drive) ไปแม่สา ยางรถ _____ (go) แบน",
+      "blanks": [
+        {
+          "accept": [
+            "was driving"
+          ]
+        },
+        {
+          "accept": [
+            "went"
+          ]
+        }
+      ],
+      "explanation_th": "While + past continuous (was driving) + past simple (went) สำหรับเหตุการณ์ที่ขัดจังหวะ",
+      "prompt_zh": "当他 _____ (drive) 去湄沙时，他的轮胎 _____ (go) 爆了。",
+      "explanation_zh": "While + 过去进行时（was driving）+ 一般过去时（went）表示打断的事件。"
+    },
+    {
+      "id": "pc_08",
+      "prompt": "This time yesterday, I _____ (ride) my motorbike to Hang Dong.",
+      "prompt_th": "เวลานี้เมื่อวาน ฉัน _____ (ride) มอเตอร์ไซค์ไปหางดง",
+      "blanks": [
+        {
+          "accept": [
+            "was riding"
+          ]
+        }
+      ],
+      "explanation_th": "'This time yesterday' บ่งบอกเวลาเจาะจงในอดีต → past continuous",
+      "prompt_zh": "昨天这个时候，我 _____ (ride) 摩托车去航东。",
+      "explanation_zh": "\"This time yesterday\"（昨天这个时候）表示过去具体时间 → 过去进行时。"
+    },
+    {
+      "id": "pc_09",
+      "prompt": "At 8 PM last night, we _____ (watch) a documentary while they _____ (play) cards.",
+      "prompt_th": "ตอน 2 ทุ่มเมื่อคืน เรา _____ (watch) สารคดีอยู่ขณะที่พวกเขา _____ (play) ไพ่",
+      "blanks": [
+        {
+          "accept": [
+            "were watching"
+          ]
+        },
+        {
+          "accept": [
+            "were playing"
+          ]
+        }
+      ],
+      "explanation_th": "สองเหตุการณ์ที่ดำเนินไปพร้อมกันในอดีต → past continuous ทั้งคู่",
+      "prompt_zh": "昨晚 8 点，我们 _____ (watch) 纪录片，他们 _____ (play) 牌。",
+      "explanation_zh": "两个同时进行的过去动作 → 两个都用过去进行时。"
+    },
+    {
+      "id": "pc_10",
+      "prompt": "The monks _____ (chant) at Wat Suan Dok when the rain _____ (start).",
+      "prompt_th": "พระ _____ (chant) อยู่ที่วัดสวนดอกตอนที่ฝน _____ (start) ตก",
+      "blanks": [
+        {
+          "accept": [
+            "were chanting"
+          ]
+        },
+        {
+          "accept": [
+            "started"
+          ]
+        }
+      ],
+      "explanation_th": "การสวดมนต์กำลังดำเนินอยู่ → past continuous; ฝนเริ่มตกคือเหตุการณ์ขัดจังหวะ → past simple",
+      "prompt_zh": "僧侣们正在素安多寺 _____ (chant) 的时候，雨 _____ (start) 下了。",
+      "explanation_zh": "诵经是正在进行的动作 → 过去进行时；雨下起来是打断 → 一般过去时。"
+    },
+    {
+      "id": "pc_11",
+      "prompt": "She _____ (read) a book at the Saturday Walking Street when her friend _____ (call).",
+      "prompt_th": "เธอ _____ (read) หนังสืออยู่ที่ถนนคนเดินวันเสาร์ตอนที่เพื่อน _____ (call) มา",
+      "blanks": [
+        {
+          "accept": [
+            "was reading"
+          ]
+        },
+        {
+          "accept": [
+            "called"
+          ]
+        }
+      ],
+      "explanation_th": "การอ่านกำลังดำเนินอยู่; โทรศัพท์มาคือเหตุการณ์ขัดจังหวะ",
+      "prompt_zh": "她正在周六步行街 _____ (read) 书的时候，朋友 _____ (call) 来了电话。",
+      "explanation_zh": "阅读是正在进行的动作；电话来是打断的事件。"
+    },
+    {
+      "id": "pc_12",
+      "prompt": "I _____ (not / sleep) when you _____ (text) me at midnight.",
+      "prompt_th": "ฉัน _____ (not / sleep) ตอนที่คุณ _____ (text) มาตอนเที่ยงคืน",
+      "blanks": [
+        {
+          "accept": [
+            "was not sleeping",
+            "wasn't sleeping"
+          ]
+        },
+        {
+          "accept": [
+            "texted"
+          ]
+        }
+      ],
+      "explanation_th": "Past continuous เชิงปฏิเสธ: was/were + not + V-ing",
+      "prompt_zh": "你半夜 _____ (text) 我的时候我 _____ (not / sleep)。",
+      "explanation_zh": "否定形式的过去进行时：was/were + not + V-ing。"
+    }
+  ],
+  "p3_scenarios": [
+    {
+      "id": "s1",
+      "opener": "Tell me what you were doing yesterday when the power went out.",
+      "opener_th": "เล่าให้ฟังหน่อย — เมื่อวานตอนไฟดับ คุณกำลังทำอะไรอยู่?",
+      "target_pattern": "I was V-ing when the power went out.",
+      "opener_zh": "告诉我昨天停电的时候，你正在做什么。"
+    },
+    {
+      "id": "s2",
+      "opener": "Imagine you were at Tha Phae Gate yesterday afternoon when a sudden downpour started. What were you doing? Who were you with?",
+      "opener_th": "ลองนึกภาพว่าเมื่อวานบ่ายคุณอยู่ที่ประตูท่าแพแล้วฝนตกหนักทันที — คุณกำลังทำอะไรอยู่? อยู่กับใคร?",
+      "target_pattern": "I was V-ing at Tha Phae Gate when...",
+      "opener_zh": "想象一下昨天下午你在塔佩门，突然下起了大雨。你正在做什么？和谁在一起？"
+    },
+    {
+      "id": "s3",
+      "opener": "What were you doing at 7 PM last night?",
+      "opener_th": "ตอน 1 ทุ่มเมื่อคืน คุณกำลังทำอะไรอยู่?",
+      "target_pattern": "I was V-ing.",
+      "opener_zh": "昨天晚上 7 点你正在做什么？"
+    },
+    {
+      "id": "s4",
+      "opener": "Tell me about a time something funny or surprising interrupted you while you were eating.",
+      "opener_th": "เล่าให้ฟังเรื่องที่มีอะไรตลก ๆ หรือไม่คาดคิดมาขัดจังหวะตอนที่คุณกำลังกินข้าวอยู่",
+      "target_pattern": "I was eating when...",
+      "opener_zh": "告诉我一次吃饭时，被一件有趣或意外的事情打断的经历。"
+    }
+  ],
+  "p3_system_prompt": "You are Kru Eng, an English tutor in Chiang Mai. The student has just finished controlled practice of the PAST CONTINUOUS (was/were + V-ing for actions in progress, often interrupted by a past simple event). Your job in this phase is to elicit the past continuous in conversation. Rules:\n- Keep replies short (1-2 sentences).\n- Ask ONE follow-up question per reply that invites a past continuous answer.\n- If the student uses past simple where past continuous fits the background action, GENTLY RECAST in your reply (e.g., student: 'I ate when he called' → you: 'Oh — so you were eating when he called! What were you eating?'). Do NOT lecture; recast and move on.\n- Do NOT change topic until at least 4 student turns have passed.\n- If the student writes in Thai, reply in English but include a short Thai gloss for any new word.\n- Be warm and encouraging. End with a question, not a statement.",
+  "config": {
+    "p2_window_size": 10,
+    "p2_pass_threshold": 0.7,
+    "p2_min_attempts": 6,
+    "p3_target_turns": 5
+  }
+}
