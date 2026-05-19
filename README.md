@@ -245,8 +245,8 @@ student devices — the rest stay private to the host.
 You need [Docker Desktop](https://docs.docker.com/desktop/) with Compose v2.
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/kru-eng-classroom.git
-cd kru-eng-classroom
+git clone https://github.com/ddtraveller/agentTeacher.git
+cd agentTeacher
 cp .env.example .env                     # edit if you want; defaults work
 docker compose up -d --build             # first build pulls ~2 GB
 python scripts/pull_models.py            # pulls Qwen 2.5 (~2 GB for 3b, ~4.4 GB for 7b)
