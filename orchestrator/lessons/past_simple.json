@@ -1,0 +1,314 @@
+{
+  "id": "past_simple",
+  "title": "Past Simple: Things That Happened",
+  "title_th": "Past Simple: เรื่องที่เกิดขึ้นแล้ว",
+  "cefr": "A1",
+  "target_structure": "S + V-ed (regular) | S + V2 (irregular). Negative: S + did not + V1. Question: Did + S + V1?",
+  "can_do": "I can talk about things I did, saw, and went to in the past.",
+  "can_do_th": "ฉันสามารถเล่าเรื่องที่ฉันทำ เห็น และไปมาในอดีตได้",
+  "p1_intro": {
+    "en": "Today we'll practise the past simple. Use it for completed actions in the past — yesterday, last week, an hour ago. Regular verbs add -ed (walked, studied). Many common verbs are irregular and you must memorise them (went, ate, saw, bought).",
+    "th": "วันนี้เราจะฝึก past simple ใช้สำหรับเหตุการณ์ที่จบลงในอดีต — เมื่อวาน อาทิตย์ที่แล้ว ชั่วโมงที่แล้ว กริยาปกติเติม -ed (walked, studied) กริยาผิดปกติต้องจำเอา (went, ate, saw, bought)",
+    "zh": "今天我们来练习一般过去时（Past Simple）。用于过去已经完成的动作 —— 昨天、上周、一小时前。规则动词加 -ed（walked, studied）。许多常用动词是不规则的，必须记住（went, ate, saw, bought）。"
+  },
+  "p1_examples": [
+    {
+      "id": "ex1",
+      "sentence": "I visited Doi Suthep last Sunday.",
+      "th": "ฉันไปวัดพระธาตุดอยสุเทพเมื่อวันอาทิตย์ที่แล้ว",
+      "highlight_verb": "visited",
+      "verb_type": "regular",
+      "image": "doi_suthep.jpg",
+      "zh": "我上周日去了素帖山。"
+    },
+    {
+      "id": "ex2",
+      "sentence": "She bought mangoes at Warorot Market yesterday morning.",
+      "th": "เธอซื้อมะม่วงที่ตลาดวโรรสเมื่อเช้านี้",
+      "highlight_verb": "bought",
+      "verb_type": "irregular (buy → bought)",
+      "image": "warorot_market.jpg",
+      "zh": "她昨天早上在瓦洛洛市场买了芒果。"
+    },
+    {
+      "id": "ex3",
+      "sentence": "We went to a Songkran water festival last April.",
+      "th": "พวกเราไปงานสงกรานต์เมื่อเดือนเมษายนที่แล้ว",
+      "highlight_verb": "went",
+      "verb_type": "irregular (go → went)",
+      "image": "songkran_festival.jpg",
+      "zh": "我们去年四月去参加了泼水节。"
+    },
+    {
+      "id": "ex4",
+      "sentence": "He ate khao soi for lunch yesterday.",
+      "th": "เขากินข้าวซอยเป็นมื้อกลางวันเมื่อวาน",
+      "highlight_verb": "ate",
+      "verb_type": "irregular (eat → ate)",
+      "image": "khao_soi_lunch.jpg",
+      "zh": "他昨天午餐吃了 khao soi。"
+    },
+    {
+      "id": "ex5",
+      "sentence": "They studied Thai at Wat Suan Dok every Tuesday evening.",
+      "th": "พวกเขาเรียนภาษาไทยที่วัดสวนดอกทุกเย็นวันอังคาร",
+      "highlight_verb": "studied",
+      "verb_type": "regular (y → ied)",
+      "image": "wat_suan_dok_class.jpg",
+      "zh": "他们每周二晚上在素安多寺学习泰语。"
+    }
+  ],
+  "p1_notice_questions": [
+    {
+      "q": "Which verbs add -ed? Which ones change form completely?",
+      "q_th": "กริยาตัวไหนเติม -ed? ตัวไหนเปลี่ยนรูปทั้งหมด?",
+      "expected_pattern": "regular: visited, studied. irregular: bought, went, ate"
+    },
+    {
+      "q": "What time-words signal past simple? Find them in each sentence.",
+      "q_th": "คำบอกเวลาที่บ่งบอกถึง past simple มีอะไรบ้าง? หาในแต่ละประโยค",
+      "expected_pattern": "last Sunday, yesterday morning, last April, yesterday, every Tuesday evening"
+    }
+  ],
+  "p2_exercises": [
+    {
+      "id": "ps_01",
+      "prompt": "I _____ (walk) to school yesterday.",
+      "prompt_th": "ฉัน _____ (walk) ไปโรงเรียนเมื่อวาน",
+      "blanks": [
+        {
+          "accept": [
+            "walked"
+          ]
+        }
+      ],
+      "explanation_th": "กริยาปกติ walk เติม -ed → walked",
+      "prompt_zh": "我昨天 _____ (walk) 去学校。",
+      "explanation_zh": "规则动词 walk 加 -ed → walked。"
+    },
+    {
+      "id": "ps_02",
+      "prompt": "She _____ (see) her grandmother in Lampang last weekend.",
+      "prompt_th": "เธอ _____ (see) ยายของเธอที่ลำปางเมื่อสุดสัปดาห์ที่แล้ว",
+      "blanks": [
+        {
+          "accept": [
+            "saw"
+          ]
+        }
+      ],
+      "explanation_th": "see เป็นกริยาผิดปกติ → saw",
+      "prompt_zh": "她上周末在南奔 _____ (see) 了她的奶奶。",
+      "explanation_zh": "see 是不规则动词 → saw。"
+    },
+    {
+      "id": "ps_03",
+      "prompt": "We _____ (eat) sticky rice and mango for breakfast.",
+      "prompt_th": "พวกเรา _____ (eat) ข้าวเหนียวมะม่วงเป็นมื้อเช้า",
+      "blanks": [
+        {
+          "accept": [
+            "ate"
+          ]
+        }
+      ],
+      "explanation_th": "eat เป็นกริยาผิดปกติ → ate",
+      "prompt_zh": "我们早餐 _____ (eat) 了糯米和芒果。",
+      "explanation_zh": "eat 是不规则动词 → ate。"
+    },
+    {
+      "id": "ps_04",
+      "prompt": "He _____ (visit) the Sunday Walking Street last week.",
+      "prompt_th": "เขา _____ (visit) ถนนคนเดินวันอาทิตย์เมื่อสัปดาห์ที่แล้ว",
+      "blanks": [
+        {
+          "accept": [
+            "visited"
+          ]
+        }
+      ],
+      "explanation_th": "กริยาปกติ visit เติม -ed → visited",
+      "prompt_zh": "他上周 _____ (visit) 了周日步行街。",
+      "explanation_zh": "规则动词 visit 加 -ed → visited。"
+    },
+    {
+      "id": "ps_05",
+      "prompt": "They _____ (go) to Mae Sa Waterfall on Saturday.",
+      "prompt_th": "พวกเขา _____ (go) ที่น้ำตกแม่สาเมื่อวันเสาร์",
+      "blanks": [
+        {
+          "accept": [
+            "went"
+          ]
+        }
+      ],
+      "explanation_th": "go เป็นกริยาผิดปกติ → went",
+      "prompt_zh": "他们星期六 _____ (go) 了湄沙瀑布。",
+      "explanation_zh": "go 是不规则动词 → went。"
+    },
+    {
+      "id": "ps_06",
+      "prompt": "I _____ (not / like) the spicy som tam at first.",
+      "prompt_th": "ตอนแรกฉัน _____ (not / like) ส้มตำเผ็ด",
+      "blanks": [
+        {
+          "accept": [
+            "did not like",
+            "didn't like"
+          ]
+        }
+      ],
+      "explanation_th": "Past simple เชิงปฏิเสธ: did + not + V1 (รูปฐาน) — like ไม่ใช่ liked",
+      "prompt_zh": "一开始我 _____ (not / like) 辣的青木瓜沙拉。",
+      "explanation_zh": "过去时否定形式：did + not + 动词原形（like，不是 liked）。"
+    },
+    {
+      "id": "ps_07",
+      "prompt": "_____ you _____ (try) the mango sticky rice yet?",
+      "prompt_th": "คุณ _____ _____ (try) ข้าวเหนียวมะม่วงหรือยัง?",
+      "blanks": [
+        {
+          "accept": [
+            "did"
+          ]
+        },
+        {
+          "accept": [
+            "try"
+          ]
+        }
+      ],
+      "explanation_th": "Past simple คำถาม: Did + S + V1 — ใช้รูปฐาน try (ไม่ใช่ tried) เพราะ did ทำหน้าที่บอกเวลา",
+      "prompt_zh": "你 _____ _____ (try) 过芒果糯米饭了吗？",
+      "explanation_zh": "过去时疑问句：Did + 主语 + 动词原形（try，不是 tried），因为 did 已经表示过去时。"
+    },
+    {
+      "id": "ps_08",
+      "prompt": "What _____ you _____ (do) for Songkran last year?",
+      "prompt_th": "ปีที่แล้วคุณ _____ _____ (do) อะไรในวันสงกรานต์?",
+      "blanks": [
+        {
+          "accept": [
+            "did"
+          ]
+        },
+        {
+          "accept": [
+            "do"
+          ]
+        }
+      ],
+      "explanation_th": "Past simple wh-question: Wh + did + S + V1. do เป็นกริยาฐาน",
+      "prompt_zh": "去年泼水节你 _____ _____ (do) 什么？",
+      "explanation_zh": "过去时特殊疑问句：疑问词 + did + 主语 + 动词原形。do 是动词原形。"
+    },
+    {
+      "id": "ps_09",
+      "prompt": "She _____ (buy) two coconuts at the morning market.",
+      "prompt_th": "เธอ _____ (buy) มะพร้าวสองลูกที่ตลาดเช้า",
+      "blanks": [
+        {
+          "accept": [
+            "bought"
+          ]
+        }
+      ],
+      "explanation_th": "buy เป็นกริยาผิดปกติ → bought",
+      "prompt_zh": "她在早市 _____ (buy) 了两个椰子。",
+      "explanation_zh": "buy 是不规则动词 → bought。"
+    },
+    {
+      "id": "ps_10",
+      "prompt": "We _____ (study) at a quiet café in Nimman all afternoon.",
+      "prompt_th": "พวกเรา _____ (study) อยู่ที่คาเฟ่เงียบ ๆ ในนิมมานทั้งบ่าย",
+      "blanks": [
+        {
+          "accept": [
+            "studied"
+          ]
+        }
+      ],
+      "explanation_th": "study ลงท้ายด้วยพยัญชนะ + y → เปลี่ยน y เป็น i แล้วเติม ed → studied",
+      "prompt_zh": "我们整个下午在尼曼一家安静的咖啡馆 _____ (study)。",
+      "explanation_zh": "study 以辅音 + y 结尾 → 变 y 为 i 再加 ed → studied。"
+    },
+    {
+      "id": "ps_11",
+      "prompt": "He _____ (not / come) to class on Monday because he _____ (be) sick.",
+      "prompt_th": "เขา _____ (not / come) มาเรียนวันจันทร์เพราะเขา _____ (be) ป่วย",
+      "blanks": [
+        {
+          "accept": [
+            "did not come",
+            "didn't come"
+          ]
+        },
+        {
+          "accept": [
+            "was"
+          ]
+        }
+      ],
+      "explanation_th": "ปฏิเสธของกริยาทั่วไปใช้ did not + V1. แต่ be มีรูปอดีตของตัวเอง (was/were) — ไม่ใช้ did",
+      "prompt_zh": "他星期一 _____ (not / come) 上课，因为他 _____ (be) 生病了。",
+      "explanation_zh": "一般动词的否定用 did not + 动词原形。但 be 动词有自己的过去式（was/were）—— 不用 did。"
+    },
+    {
+      "id": "ps_12",
+      "prompt": "The students _____ (finish) their homework before the night market _____ (open).",
+      "prompt_th": "นักเรียน _____ (finish) การบ้านก่อนตลาดกลางคืน _____ (open)",
+      "blanks": [
+        {
+          "accept": [
+            "finished"
+          ]
+        },
+        {
+          "accept": [
+            "opened"
+          ]
+        }
+      ],
+      "explanation_th": "ทั้งสองคำเป็นกริยาปกติ → เติม -ed",
+      "prompt_zh": "学生们在夜市 _____ (open) 之前 _____ (finish) 了作业。",
+      "explanation_zh": "两个都是规则动词 → 加 -ed。"
+    }
+  ],
+  "p3_scenarios": [
+    {
+      "id": "s1",
+      "opener": "Tell me one thing you did yesterday.",
+      "opener_th": "เล่าให้ฟังหน่อย — เมื่อวานคุณทำอะไรไปบ้างหนึ่งอย่าง",
+      "target_pattern": "I + V-ed / V2 (yesterday).",
+      "opener_zh": "告诉我昨天你做的一件事。"
+    },
+    {
+      "id": "s2",
+      "opener": "What did you do last weekend in Chiang Mai? Tell me three things.",
+      "opener_th": "สุดสัปดาห์ที่แล้วคุณทำอะไรในเชียงใหม่บ้าง? เล่ามาสามอย่าง",
+      "target_pattern": "I + V-ed / V2 (last weekend). Multiple past actions.",
+      "opener_zh": "上周末你在清迈做了什么？告诉我三件事。"
+    },
+    {
+      "id": "s3",
+      "opener": "Tell me about the last time you tried a new food. What did you try? Where did you eat it? Did you like it?",
+      "opener_th": "เล่าให้ฟังหน่อย — ครั้งล่าสุดที่คุณลองอาหารใหม่ คุณลองอะไร? กินที่ไหน? ชอบไหม?",
+      "target_pattern": "I tried..., I ate..., I (didn't) like...",
+      "opener_zh": "告诉我你上一次尝试新食物的经历。你尝了什么？在哪里吃的？喜欢吗？"
+    },
+    {
+      "id": "s4",
+      "opener": "What did you do for your last birthday?",
+      "opener_th": "วันเกิดครั้งล่าสุดของคุณ คุณทำอะไรบ้าง?",
+      "target_pattern": "Narrative chain of past simple — I went..., I ate..., my friends gave me...",
+      "opener_zh": "你上一次过生日做了什么？"
+    }
+  ],
+  "p3_system_prompt": "You are Kru Eng, an English tutor in Chiang Mai. The student has just finished controlled practice of the PAST SIMPLE (regular -ed verbs like 'walked', 'studied'; irregular verbs like 'went', 'ate', 'saw', 'bought'; negative with 'did not + V1'; questions with 'Did + S + V1'). Your job in this phase is to elicit past simple in conversation. Rules:\n- Always reply in English, even if the student writes in Thai or Chinese. Switch only if the student explicitly asks you to reply in Thai/Chinese.\n- Keep replies short (1-2 sentences).\n- Ask ONE follow-up question per reply that invites a past simple answer.\n- If the student uses present simple where past simple is needed (e.g., student: 'Yesterday I go to market' -> you: 'Oh, you went to the market yesterday — what did you buy?'), GENTLY RECAST the correct form in your reply. Do not lecture; recast and move on.\n- If the student uses an incorrect form of an irregular verb (e.g., 'eated' instead of 'ate'), recast it: 'Oh, you ate khao soi! Did you like it?'\n- Do NOT change topic until at least 4 student turns have passed.\n- Be warm and encouraging. End with a question, not a statement.",
+  "config": {
+    "p2_window_size": 10,
+    "p2_pass_threshold": 0.7,
+    "p2_min_attempts": 6,
+    "p3_target_turns": 5
+  }
+}

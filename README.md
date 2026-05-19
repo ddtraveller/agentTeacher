@@ -453,6 +453,210 @@ indexed on the next reindex — no docker compose copy step.
   fine for most retrieval.
 - **Deleting files** → reindex (orphan chunks otherwise hang around).
 
+## Customizing through Docker — three different ways
+
+There are three places a school's customizations live, and each has its
+own update path. Knowing which is which saves a lot of time.
+
+| What you're changing | Where it lives | How it's wired |
+|---|---|---|
+| School info, persona, students, curriculum, lessons (wiki), grammar references, vocab lists | `seed_wiki/**/*.md` | **Bind-mounted** read-only into the orchestrator container — host edits land instantly inside the container |
+| Lesson plans for the PPP engine (`/lesson` UI) | `orchestrator/lessons/*.json` | **Baked into the orchestrator image** at build time |
+| The hard-coded `SYSTEM_PROMPT`, lesson grading code, endpoints | `orchestrator/main.py` | **Baked into the orchestrator image** at build time |
+| Model choice, generation params, RAG settings, Edge voice names | `.env` | **Read at compose-up time** as environment variables |
+| Voice clone reference WAVs | `voices/*.wav` | **Bind-mounted** read-only into the tts container |
+
+### Way 1 — Hot reload (for wiki content)
+
+Use this when you're editing **anything under `seed_wiki/`**: the
+persona, the school identity, student profiles, curriculum, lessons
+(the markdown ones, not the JSON), grammar, vocab, references.
+
+```bash
+# 1. Edit the file on the host (any editor)
+notepad++ "C:\Users\Admin\claude\kru-eng-classroom\seed_wiki\school\about_kru_eng.md"
+
+# 2. Restart just the orchestrator (~5 seconds)
+docker compose restart orchestrator
+
+# 3. If RAG is enabled and you added/edited substantive content, force a reindex
+docker compose down
+docker volume rm kru-eng-classroom_wiki_index
+docker compose up -d
+```
+
+Why this is fast: `./seed_wiki` is bind-mounted into the container at
+`/data/wiki`, so your host edit is the container's view. No image
+rebuild, no Docker layer caching to fight.
+
+### Way 2 — Rebuild (for code, system prompt, and lesson JSONs)
+
+Use this when you're changing **`orchestrator/main.py`** (system prompt,
+endpoints, grading logic) or **`orchestrator/lessons/*.json`** (the PPP
+lesson plans). These are baked into the image at build time, so the
+running container has a frozen copy — you have to rebuild.
+
+```bash
+# 1. Edit the file on the host
+notepad++ "C:\Users\Admin\claude\kru-eng-classroom\orchestrator\lessons\past_simple.json"
+
+# 2. Rebuild and restart (~30 seconds — Docker reuses cached layers)
+docker compose up -d --build orchestrator
+```
+
+For lesson JSONs specifically, the loader picks them up automatically
+on orchestrator startup — `_load_lessons()` scans `/app/lessons/*.json`
+at import time. Add a file, rebuild, and it appears in
+`GET /lesson/list` next time you call it.
+
+### Way 3 — Hot reload for lessons too (optional setup)
+
+If you're iterating fast on lesson JSONs and don't want to rebuild
+every time, add a bind mount in your `docker-compose.override.yml`:
+
+```yaml
+services:
+  orchestrator:
+    volumes:
+      - ./orchestrator/lessons:/app/lessons:ro
+```
+
+Then host edits to `orchestrator/lessons/*.json` show up after
+`docker compose restart orchestrator` — no rebuild needed. Useful for
+lesson authors; not needed for school admins who only edit lessons
+once in a while.
+
+### Way 4 — Live exec (for quick experiments only)
+
+For a five-second tweak before you decide whether to commit, you can
+edit inside a running container. Lost on the next restart, so this is
+only for "let me try something":
+
+```bash
+# Get a shell inside the orchestrator
+docker exec -it krueng-orchestrator sh
+
+# Inside the container:
+vi /data/wiki/staff/kru_eng_persona.md   # if you have vi installed
+# or:
+apk add nano 2>/dev/null || apt-get install -y nano   # depending on base image
+nano /data/wiki/staff/kru_eng_persona.md
+```
+
+Edits to `/data/wiki/...` ARE persisted to the host (because it's
+bind-mounted), so this is actually the same as Way 1 with extra steps.
+Edits to `/app/...` (orchestrator code or lessons) are container-only
+and disappear on restart.
+
+### Recipes
+
+**To add a new lesson** (e.g., "present perfect"):
+
+```bash
+cp orchestrator/lessons/past_simple.json orchestrator/lessons/present_perfect.json
+# Edit present_perfect.json — change id, title, p1_examples, p2_exercises, p3_scenarios, p3_system_prompt
+docker compose up -d --build orchestrator
+curl http://localhost:8000/lesson/list   # verify it appears
+```
+
+**To modify the teacher's personality** (the bot's voice and style):
+
+```bash
+# Edit the persona file
+notepad++ seed_wiki/staff/kru_eng_persona.md
+# Restart — no rebuild needed
+docker compose restart orchestrator
+```
+
+Note that the **runtime system prompt is hardcoded** in
+`orchestrator/main.py`, separate from the persona doc. The persona doc
+shapes the bot's behavior only through RAG retrieval. If you want a
+fundamental change to how the bot opens every conversation, edit the
+`SYSTEM_PROMPT` constant in `orchestrator/main.py` (Way 2).
+
+**To add information about the school** (handbook, history, mission,
+phone numbers, holiday calendar, anything the bot should answer about
+your institution):
+
+```bash
+# Pick a topic, write a markdown file with frontmatter
+notepad++ seed_wiki/school/holiday_calendar_2026.md
+# Restart + reindex
+docker compose down
+docker volume rm kru-eng-classroom_wiki_index
+docker compose up -d
+```
+
+The `school/` subdirectory is the conventional home for institution-
+identity content. For volume (whole handbook chapters, SOP libraries),
+make a new top-level directory like `seed_wiki/handbook/` or
+`seed_wiki/policies/`.
+
+**To change the model** (e.g., switch from `qwen2.5:3b` to `qwen2.5:7b`
+or `llama3.2:3b`):
+
+```bash
+# 1. Make sure the model is pulled into Ollama
+python scripts/pull_models.py   # uses MODEL from .env
+
+# 2. Edit .env
+notepad++ .env   # change MODEL=qwen2.5:7b
+
+# 3. Restart — .env is read fresh on container start
+docker compose up -d
+```
+
+No rebuild needed because the model name is an env var, not baked into
+the image.
+
+**To tune voice settings** (e.g., switch the English Edge TTS voice
+from Jenny to Aria):
+
+```bash
+# Edit .env
+notepad++ .env   # change EDGE_VOICE_EN=en-US-AriaNeural
+
+# Restart the tts service
+docker compose up -d tts
+```
+
+[List of available Edge TTS voices](https://github.com/rany2/edge-tts#changing-the-default-voice)
+— common ones: `en-US-AriaNeural`, `en-US-GuyNeural`, `en-GB-SoniaNeural`,
+`th-TH-PremwadeeNeural`, `th-TH-NiwatNeural`.
+
+### Putting it together — a typical school customization session
+
+```bash
+# Stop everything cleanly
+docker compose down
+
+# Update your school identity
+notepad++ seed_wiki/school/about_kru_eng.md
+
+# Add a new student profile
+cp seed_wiki/students/learner_profile_template.md seed_wiki/students/somchai.md
+notepad++ seed_wiki/students/somchai.md   # fill in name, level, interests
+
+# Add a new lesson based on past_simple
+cp orchestrator/lessons/past_simple.json orchestrator/lessons/present_continuous.json
+notepad++ orchestrator/lessons/present_continuous.json   # rewrite content
+
+# Adjust the model and turn on RAG
+notepad++ .env   # MODEL=qwen2.5:7b, RAG_ENABLED=true
+
+# Bring it back up — single command, rebuilds the orchestrator (for the
+# new lesson), restarts everything else, picks up .env, rebuilds the
+# index (because we just blew away the volume below)
+docker volume rm kru-eng-classroom_wiki_index 2>/dev/null
+docker compose up -d --build
+
+# Verify
+curl http://localhost:8000/health
+curl http://localhost:8000/lesson/list
+```
+
+That's the full customization loop.
+
 ## Endpoints
 
 The orchestrator exposes these on port 8000:
