@@ -2,6 +2,10 @@
 .env.local
 .env.*.local
 
+# Per-machine docker-compose override (host-Ollama wiring, GPU stanzas, etc.)
+# Each deployer has their own — don't commit it.
+docker-compose.override.yml
+
 # Voice reference clips — these are personal/identifying audio.
 # The README.md in voices/ explains the format; clips themselves stay local.
 voices/*.wav

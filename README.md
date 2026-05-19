@@ -132,6 +132,40 @@ into. All of it stays on your PC.
   conversations, and the institution keeps the knowledge — without
   ever uploading it to a third party who would train on it.
 
+### Using your school's existing digital media as the AI's knowledge
+
+A school doesn't start with an empty bot. Most schools already have
+years of materials gathering dust on shared drives — and all of it can
+become the AI's corpus:
+
+- **PDFs and Word documents** — lesson plans, worksheets, parent
+  handbooks, policy documents, course outlines. Drop them into
+  `seed_wiki/` (or a sibling folder you point `WIKI_PATH` at) and the
+  bot indexes them automatically. LlamaIndex reads PDF and DOCX out of
+  the box.
+- **Slide decks** — PowerPoint files convert to markdown easily. The
+  bot then references "Slide 12 of the Photosynthesis deck" when a
+  student asks about chloroplasts.
+- **Recorded lectures and audio** — feed them through Whisper (already
+  in this stack) to produce text transcripts. The bot can then answer
+  "what did Ajarn Som say about the Sukhothai period last term?"
+- **Scanned books and handwritten notes** — OCR them (Tesseract works
+  well for Thai + English) and the text joins the corpus. A school's
+  out-of-print textbooks become searchable.
+- **Past exam papers** — become practice material. The bot generates
+  variations grounded in your school's actual exam style, not generic
+  textbook patterns.
+- **Photos of classroom whiteboards** — vision models can extract the
+  text. A semester of whiteboard work becomes a study reference.
+- **Old teacher emails, parent newsletters, school magazines** — your
+  institutional voice and history. The bot learns to *sound like your
+  school*, not like a generic tutor.
+
+The pattern is always the same: text-bearing artifact → wiki markdown
+→ indexed → the bot uses it. Once a school commits to feeding its
+existing materials in, the AI rapidly becomes more useful than any
+cloud tutor could be — because it knows things only your school knows.
+
 ### What stays safe
 
 Local AI is the only deployment model where **your school's special
@@ -157,6 +191,51 @@ free fuel for someone else's product.
 - **Structured data** — student progress reports, class summaries,
   attendance digests, exam analytics — all in formats your existing
   systems can ingest.
+
+## System requirements
+
+### Minimum (works, but slow on CPU)
+
+- **OS:** Windows 10/11, macOS 12+, or Linux (any modern distro)
+- **CPU:** Any 64-bit x86 or Apple Silicon, 4 cores
+- **RAM:** 8 GB (16 GB strongly recommended)
+- **Disk:** 20 GB free (~15 GB for AI models + 5 GB for Docker images and indices)
+- **Docker:** Docker Desktop with Compose v2 (Linux: Docker Engine 24+ with the compose plugin)
+- **Network:** Internet for first install (Docker images + Ollama model downloads). After that, only Edge TTS needs internet — Whisper, Ollama, and the wiki all work fully offline
+- **Browser:** Chrome, Edge, Firefox, or Safari — recent versions, with microphone permission
+- **Microphone + speakers** (or headset) on the host machine
+
+### Recommended (responsive for live classroom use)
+
+- **GPU:** NVIDIA card with **6 GB+ VRAM** and a recent CUDA driver (RTX 3060, 4060, or better). Or a Mac with Apple Silicon M2/M3 and 16+ GB unified memory running Ollama natively on the host
+- **RAM:** 32 GB if running qwen2.5:7b or larger
+- **Disk:** 50 GB free if you plan to add custom models, more lessons, image generation, or video
+- **A dedicated PC** the school can leave on 24/7 in a quiet corner — laptops thermally throttle under sustained AI load
+
+### Ports the stack uses
+
+The Docker stack publishes these ports on the host. Make sure nothing
+else is listening on them, or remap in `docker-compose.yml`:
+
+| Port | Service | What it serves |
+|---|---|---|
+| **8000** | orchestrator | Web UI + REST API (the thing students/teachers open in a browser) |
+| **11434** | ollama | Language model inference (internal — only the orchestrator calls it) |
+| **9000** | whisper | Speech-to-text (internal) |
+| **8001** | tts | Text-to-speech (internal — useful to hit directly for testing) |
+
+For a school LAN deployment, only port 8000 needs to be reachable from
+student devices — the rest stay private to the host.
+
+### Windows-specific notes
+
+- Docker Desktop requires **WSL2 backend**. Enable WSL2 before installing
+  Docker Desktop.
+- For GPU on Windows, you also need **NVIDIA Container Toolkit**
+  inside WSL2. The compose file has the GPU stanza commented out —
+  uncomment it once the toolkit is set up.
+- Path lengths: keep the install directory short (e.g.,
+  `C:\krueng\`) — deep paths can trip Docker volume mounts on Windows.
 
 ## Quick start
 
