@@ -253,6 +253,13 @@ Then open **http://localhost:8000**. You should see a green health row at the
 bottom. Hold the **🎙 Hold to talk** button, speak, release. The reply plays
 back through your speakers.
 
+### What to open in a browser
+
+| URL | What you'll see |
+|---|---|
+| **http://localhost:8000/** | Web UI — mic + speaker chat with Kru Eng. Click "🎙 Hold to talk", speak, release. |
+| **http://localhost:8000/lesson** | Scaffolded PPP lesson UI — runs the Past Continuous lesson (presentation → practice → production). |
+
 ## Hardware honestly
 
 This is the section every other "local AI" project glosses over. The model
