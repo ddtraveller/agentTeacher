@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam · Kru Eng</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun",
+         "Noto Sans Thai", sans-serif; max-width: 760px; margin: 1rem auto;
+         padding: 1rem; background: #f7f5ef; color: #1a1a1a; }
+  h1 { color: #0a7373; margin: 0 0 0.25rem; text-align: center; }
+  .sub { color: #666; font-size: 0.9rem; margin: 0 0 1rem; text-align: center; }
+  .back { text-align: center; margin: 0 0 1rem; }
+  .back a, .back button {
+    color: #0a7373; text-decoration: none; font-size: 0.85rem;
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    padding: 0; }
+  .back button:hover { text-decoration: underline; }
+
+  /* ── State 1: list of exams ─────────────────────────────────────────── */
+  .list { display: grid; gap: 0.5rem; }
+  .card { background: white; border: 1px solid #e6e3da; border-radius: 8px;
+          padding: 0.85rem 1rem; cursor: pointer; transition: border-color 0.15s; }
+  .card:hover { border-color: #0a7373; }
+  .card h3 { margin: 0 0 0.25rem; color: #1a1a1a; font-size: 1.05rem; }
+  .card .meta { color: #666; font-size: 0.82rem; }
+  .card .pill { display: inline-block; padding: 0.1rem 0.5rem;
+                background: #0a7373; color: white; border-radius: 999px;
+                font-size: 0.75rem; margin-right: 0.4rem; }
+  .empty { text-align: center; color: #888; padding: 2rem 1rem; }
+  .empty code { background: white; border: 1px solid #e6e3da;
+                padding: 0.25rem 0.5rem; border-radius: 4px;
+                font-size: 0.85rem; display: inline-block; margin-top: 0.5rem; }
+
+  /* ── State 2: take exam ─────────────────────────────────────────────── */
+  .q { background: white; border: 1px solid #e6e3da; border-radius: 8px;
+       padding: 0.9rem 1rem; margin-bottom: 0.6rem; }
+  .q .qnum { color: #0a7373; font-weight: 600; font-size: 0.85rem; }
+  .q .prompt { margin: 0.35rem 0; font-size: 1rem; line-height: 1.7; }
+  .q .prompt input { font-size: 1rem; padding: 0.2rem 0.4rem;
+                     border: 1px solid #ccc; border-radius: 4px;
+                     min-width: 8ch; font-family: inherit;
+                     background: #fffff0; }
+  .q .prompt input.correct  { background: #dcf0e0; border-color: #2d8a3e; color: #0a5e1f; }
+  .q .prompt input.incorrect { background: #fde6e0; border-color: #c8102e; color: #8b1c1c; }
+  .q .helper { color: #888; font-size: 0.82rem; margin: 0.2rem 0 0; }
+
+  .submit-row { text-align: center; margin: 1rem 0; }
+  .submit-row button { padding: 0.7rem 1.6rem; font-size: 1rem;
+                       background: #0a7373; color: white; border: none;
+                       border-radius: 999px; cursor: pointer;
+                       font-family: inherit; }
+  .submit-row button:hover { background: #085959; }
+  .submit-row button:disabled { background: #aaa; cursor: wait; }
+
+  /* ── State 3: results ───────────────────────────────────────────────── */
+  .score-banner { background: white; border-radius: 8px;
+                  border: 1px solid #e6e3da; padding: 1rem;
+                  text-align: center; margin-bottom: 0.8rem; }
+  .score-banner .pct { font-size: 2.4rem; font-weight: 700; color: #0a7373; }
+  .score-banner .num { color: #555; font-size: 0.95rem; }
+  .score-banner.bad .pct  { color: #c75c00; }
+  .score-banner.ok .pct   { color: #2d8a3e; }
+
+  .q.review { border-left: 4px solid; }
+  .q.review.correct   { border-left-color: #2d8a3e; }
+  .q.review.incorrect { border-left-color: #c8102e; }
+  .q.review .expected { color: #2d8a3e; font-size: 0.9rem; margin-top: 0.4rem; }
+  .q.review .expected b { font-weight: 700; }
+  .q.review .explain { color: #555; font-size: 0.88rem;
+                       margin-top: 0.3rem; line-height: 1.55; }
+  .q.review .explain p { margin: 0.2rem 0; }
+
+  .err { color: #8b1c1c; background: #fdecea; padding: 0.6rem 0.85rem;
+         border-radius: 6px; font-size: 0.9rem; margin: 0.5rem 0; }
+
+  /* ── State 4: create exam ───────────────────────────────────────────── */
+  .list-head { display: flex; justify-content: space-between; align-items: center;
+               margin-bottom: 0.6rem; gap: 0.5rem; flex-wrap: wrap; }
+  .list-head .actions { display: flex; gap: 0.4rem; }
+  .list-head button { padding: 0.4rem 0.8rem; background: #0a7373; color: white;
+                      border: none; border-radius: 999px; cursor: pointer;
+                      font-family: inherit; font-size: 0.85rem; }
+  .list-head button:hover { background: #085959; }
+  .list-head button.secondary { background: white; color: #0a7373;
+                                 border: 1px solid #0a7373; }
+  .list-head button.secondary:hover { background: #eafafa; }
+
+  .create-form { background: white; border: 1px solid #e6e3da;
+                 border-radius: 8px; padding: 1rem; }
+  .create-form label { display: block; font-size: 0.85rem; color: #555;
+                       margin: 0.5rem 0 0.2rem; font-weight: 600; }
+  .create-form input[type=text], .create-form textarea {
+    width: 100%; padding: 0.45rem 0.6rem; box-sizing: border-box;
+    border: 1px solid #ccc; border-radius: 4px;
+    font-family: inherit; font-size: 0.95rem; }
+  .create-form textarea { resize: vertical; min-height: 2.4rem; }
+  .qrow { border-top: 1px solid #eee; padding: 0.75rem 0; margin-top: 0.5rem; }
+  .qrow:first-of-type { border-top: none; padding-top: 0; }
+  .qrow .qhead { display: flex; justify-content: space-between; align-items: center;
+                  margin-bottom: 0.3rem; }
+  .qrow .qhead h4 { margin: 0; font-size: 0.9rem; color: #0a7373; }
+  .qrow .qhead button { background: none; color: #c8102e; border: none;
+                         cursor: pointer; font-size: 0.85rem; padding: 0.2rem 0.4rem; }
+  .qrow .qhead button:hover { text-decoration: underline; }
+  .blanks-section { margin-top: 0.6rem; }
+  .blanks-section > label { margin-top: 0; margin-bottom: 0.3rem; }
+  .blanks-grid { display: grid; gap: 0.6rem; }
+  .blank-box { background: #fafaf6; border: 1px solid #e6e3da;
+                border-radius: 6px; padding: 0.5rem 0.65rem; }
+  .blank-box .blabel { font-size: 0.8rem; color: #666; margin-bottom: 0.35rem;
+                        font-weight: 600; }
+  .answer-row { display: flex; gap: 0.4rem; align-items: center;
+                 margin-bottom: 0.25rem; }
+  .answer-row input.atext { flex: 1; padding: 0.35rem 0.5rem;
+                             border: 1px solid #ccc; border-radius: 4px;
+                             font-family: inherit; font-size: 0.92rem; }
+  .answer-row .toggle { cursor: pointer; border: none; border-radius: 999px;
+                         padding: 0.3rem 0.7rem; font-size: 0.8rem;
+                         font-family: inherit; min-width: 9ch;
+                         transition: background 0.12s; }
+  .answer-row .toggle.correct   { background: #dcf0e0; color: #0a5e1f; }
+  .answer-row .toggle.correct:hover   { background: #c4e6ca; }
+  .answer-row .toggle.incorrect { background: #fde6e0; color: #8b1c1c; }
+  .answer-row .toggle.incorrect:hover { background: #f7d3c9; }
+  .answer-row .rm-row { background: none; border: none; color: #888;
+                         cursor: pointer; font-size: 1.1rem; padding: 0 0.2rem;
+                         line-height: 1; }
+  .answer-row .rm-row:hover { color: #c8102e; }
+  .add-answer { background: white; color: #0a7373;
+                 border: 1px dashed #0a7373; border-radius: 4px;
+                 padding: 0.3rem 0.7rem; cursor: pointer;
+                 font-family: inherit; font-size: 0.82rem;
+                 margin-top: 0.2rem; }
+  .add-answer:hover { background: #eafafa; }
+  .blanks-empty { background: #fff8e1; border: 1px dashed #d4a040;
+                   border-radius: 4px; padding: 0.5rem 0.7rem;
+                   color: #7a5a10; font-size: 0.85rem; }
+  .blanks-empty code { background: rgba(0,0,0,0.06); padding: 0.05rem 0.3rem;
+                        border-radius: 3px; font-size: 0.85rem; }
+
+  /* Multi-choice in the take UI */
+  .blank-marker { display: inline-block; background: #0a7373; color: white;
+                   padding: 0.05rem 0.5rem; border-radius: 4px;
+                   font-size: 0.85rem; vertical-align: baseline; }
+  .mc-block { background: #fafaf6; border: 1px solid #e6e3da;
+               border-radius: 6px; padding: 0.55rem 0.75rem;
+               margin: 0.5rem 0 0.2rem; }
+  .mc-block .mclabel { font-size: 0.85rem; color: #555; font-weight: 600;
+                        margin-bottom: 0.3rem; }
+  .mc-block label.opt { display: block; padding: 0.25rem 0; cursor: pointer;
+                         font-size: 0.95rem; line-height: 1.45; }
+  .mc-block label.opt input { margin-right: 0.5rem; }
+  .mc-block label.opt.correct-pick   { color: #0a5e1f; font-weight: 600; }
+  .mc-block label.opt.wrong-pick     { color: #8b1c1c; text-decoration: line-through; }
+  .mc-block label.opt.missed-correct { color: #0a5e1f; font-weight: 600;
+                                        background: #dcf0e0; padding: 0.2rem 0.4rem;
+                                        border-radius: 4px; }
+  .optional { background: #fafaf6; padding: 0.5rem 0.75rem; border-radius: 4px;
+              margin-top: 0.4rem; }
+  .optional summary { cursor: pointer; font-size: 0.82rem; color: #666;
+                      user-select: none; }
+  .optional summary:hover { color: #0a7373; }
+  .optional label { margin-top: 0.4rem; }
+
+  .form-actions { display: flex; gap: 0.5rem; justify-content: flex-end;
+                  margin-top: 0.75rem; padding-top: 0.75rem;
+                  border-top: 1px solid #eee; }
+  .form-actions button { padding: 0.5rem 1.1rem; border-radius: 6px;
+                          border: none; cursor: pointer; font-family: inherit;
+                          font-size: 0.9rem; }
+  .form-actions button.primary { background: #0a7373; color: white; }
+  .form-actions button.primary:hover { background: #085959; }
+  .form-actions button.cancel { background: #eee; color: #333; }
+  .form-actions button.cancel:hover { background: #ddd; }
+  .form-actions button.add-q { background: white; color: #0a7373;
+                                border: 1px solid #0a7373; margin-right: auto; }
+  .form-actions button.add-q:hover { background: #eafafa; }
+
+  .notice { background: #dcf0e0; color: #0a5e1f; padding: 0.6rem 0.85rem;
+            border-radius: 6px; font-size: 0.9rem; margin: 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<h1>📝 Exam</h1>
+<p class="sub">Fresh exercises generated from your lessons</p>
+<p class="back"><a href="/">← Back to Kru Eng chat</a></p>
+
+<div id="root"></div>
+
+<script>
+const $ = sel => document.querySelector(sel);
+const root = $('#root');
+
+let state = 'list';        // 'list' | 'take' | 'results' | 'create'
+let currentExam = null;    // the taken exam (without accept)
+let currentResults = null; // grading response
+let createDraft = null;    // {title, lesson_id, cefr, exercises: [{prompt, accept_csv, prompt_th, ...}]}
+let listNotice = '';       // banner text shown above the list once
+
+// ---- Rendering ------------------------------------------------------------
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit'
+  });
+}
+
+// Render the prompt as-is for multi-choice; for fill-blank (legacy LLM
+// exams) interleave text inputs at each "_____" marker. `q` is the
+// exercise; multi-choice exercises have q.options populated.
+function promptHTML(q, qi, mode, perBlank, userAnswers) {
+  const isMC = Array.isArray(q.options) && q.options.length > 0;
+  if (isMC) {
+    // Multi-choice: no inline inputs; prompt is plain text. Options
+    // render in their own block below via renderOptionsBlock.
+    return escapeHTML(q.prompt);
+  }
+  const parts = q.prompt.split('_____');
+  const out = [];
+  for (let i = 0; i < parts.length; i++) {
+    out.push(escapeHTML(parts[i]));
+    if (i < parts.length - 1) {
+      const bi = i;
+      if (mode === 'take') {
+        out.push(`<input type="text" name="exam-q${qi}-b${bi}" autocomplete="off" data-qi="${qi}" data-bi="${bi}">`);
+      } else {
+        const userAns = (userAnswers && userAnswers[bi]) || '';
+        const klass = perBlank && perBlank[bi] ? 'correct' : 'incorrect';
+        out.push(`<input type="text" class="${klass}" value="${escapeHTML(userAns)}" readonly>`);
+      }
+    }
+  }
+  return out.join('');
+}
+
+// For multi-choice exercises (exercise-level options), render a checkbox
+// list below the prompt. In review mode, annotate correct/wrong/missed.
+function renderOptionsBlock(q, qi, mode, isCorrect, userPicks, correctOpts) {
+  const opts = q.options || [];
+  if (!opts.length) return '';
+  const picks = new Set(userPicks || []);
+  const correctSet = new Set(correctOpts || []);
+  const items = opts.map(o => {
+    const t = o.text;
+    if (mode === 'take') {
+      return `<label class="opt">
+        <input type="checkbox" data-qi="${qi}" value="${escapeHTML(t)}">${escapeHTML(t)}
+      </label>`;
+    }
+    const wasPicked = picks.has(t);
+    const isRight = correctSet.has(t);
+    let klass = 'opt', suffix = '';
+    if (wasPicked && isRight)        { klass = 'opt correct-pick';   suffix = ' ✓'; }
+    else if (wasPicked && !isRight)  { klass = 'opt wrong-pick';     suffix = ' ✗'; }
+    else if (!wasPicked && isRight)  { klass = 'opt missed-correct'; suffix = ' (correct — missed)'; }
+    return `<label class="${klass}">
+      <input type="checkbox" disabled ${wasPicked ? 'checked' : ''}>${escapeHTML(t)}${suffix}
+    </label>`;
+  }).join('');
+  const label = mode === 'take' ? 'Select all correct answers'
+                                : 'Answer options';
+  return `<div class="mc-block"><div class="mclabel">${label}</div>${items}</div>`;
+}
+
+function escapeHTML(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function renderList() {
+  const noticeHTML = listNotice
+    ? `<div class="notice">${escapeHTML(listNotice)}</div>` : '';
+  listNotice = '';  // shown once
+  root.innerHTML = `
+    ${noticeHTML}
+    <div class="list-head">
+      <div></div>
+      <div class="actions">
+        <button id="load-file" class="secondary" type="button">Load from file…</button>
+        <button id="new-exam" type="button">+ New exam</button>
+        <input id="file-input" type="file" accept=".json,application/json" style="display:none">
+      </div>
+    </div>
+    <div class="list" id="list">loading…</div>
+  `;
+  $('#new-exam').addEventListener('click', () => startCreate(null));
+  $('#load-file').addEventListener('click', () => $('#file-input').click());
+  $('#file-input').addEventListener('change', onFilePicked);
+
+  let exams = [];
+  try {
+    const r = await fetch('/exam/list');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    exams = (await r.json()).exams || [];
+  } catch (e) {
+    $('#list').innerHTML = '<div class="err">Failed to load exam list: ' + escapeHTML(e.message) + '</div>';
+    return;
+  }
+  if (!exams.length) {
+    $('#list').innerHTML =
+      '<div class="empty">No exams yet. Click <b>+ New exam</b> to create one by hand,' +
+      ' load one from a JSON file, or run the CLI:<br>' +
+      '<code>docker compose exec orchestrator python -m exam_creator past_simple --count 10</code>' +
+      '</div>';
+    return;
+  }
+  $('#list').innerHTML = exams.map(e => `
+    <div class="card" data-exam-id="${escapeHTML(e.id)}">
+      <h3>${escapeHTML(e.lesson_title || e.lesson_id)}</h3>
+      <div class="meta">
+        ${e.cefr ? `<span class="pill">${escapeHTML(e.cefr)}</span>` : ''}
+        <span>${e.count} questions</span> ·
+        <span>generated ${fmtDate(e.generated_at)}</span>
+      </div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('click', () => startExam(c.dataset.examId));
+  });
+}
+
+// ---- File load: parse JSON, prefill the create form so the teacher
+// can review/edit before saving. Same schema the API accepts.
+async function onFilePicked(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  try {
+    const text = await f.text();
+    const data = JSON.parse(text);
+    const draft = normalizeLoadedFile(data);
+    startCreate(draft);
+  } catch (err) {
+    listNotice = 'File load failed: ' + err.message;
+    renderList();
+  } finally {
+    e.target.value = '';   // reset so picking the same file twice re-fires
+  }
+}
+
+// Accept either the ExamInput shape ({title, exercises}) or the full Exam
+// shape (with id, generated_at, etc. — we'll just take title + exercises).
+function normalizeLoadedFile(data) {
+  if (!data || typeof data !== 'object') throw new Error('not a JSON object');
+  const title = data.title || data.lesson_title;
+  if (!title) throw new Error('missing "title" (or "lesson_title")');
+  const exes = data.exercises;
+  if (!Array.isArray(exes) || !exes.length) throw new Error('missing or empty "exercises"');
+  return {
+    title,
+    lesson_id: data.lesson_id || 'custom',
+    cefr: data.cefr || '',
+    exercises: exes.map(ex => {
+      let opts = [];
+      if (Array.isArray(ex.options) && ex.options.length) {
+        opts = ex.options.map(o => ({
+          text: String(o.text || ''),
+          correct: !!o.correct,
+        }));
+      } else if (Array.isArray(ex.blanks) && ex.blanks.length) {
+        // Legacy fill-blank: flatten all accept lists into correct options.
+        // Teacher can then add wrong distractors and re-save as multi-choice.
+        for (const b of ex.blanks) {
+          for (const a of (b.accept || [])) {
+            opts.push({ text: String(a), correct: true });
+          }
+        }
+      }
+      if (!opts.length) opts = [
+        { text: '', correct: true  },
+        { text: '', correct: false },
+      ];
+      return {
+        prompt: ex.prompt || '',
+        prompt_th: ex.prompt_th || '',
+        prompt_zh: ex.prompt_zh || '',
+        options: opts,
+        explanation_th: ex.explanation_th || '',
+        explanation_zh: ex.explanation_zh || '',
+      };
+    }),
+  };
+}
+
+// ---- Create state: form to author exam by hand ---------------------------
+
+function startCreate(prefill) {
+  state = 'create';
+  createDraft = prefill || {
+    title: '',
+    lesson_id: 'custom',
+    cefr: '',
+    exercises: [emptyDraftExercise()],
+  };
+  renderCreate();
+}
+
+function emptyDraftExercise() {
+  return {
+    prompt: '',
+    prompt_th: '',
+    prompt_zh: '',
+    // Flat list of answers at exercise level. Each answer is {text, correct}.
+    // Default: two rows, one Correct + one Incorrect, both empty.
+    options: [
+      { text: '', correct: true  },
+      { text: '', correct: false },
+    ],
+    explanation_th: '',
+    explanation_zh: '',
+  };
+}
+
+function renderCreate() {
+  const d = createDraft;
+  root.innerHTML = `
+    <p class="back"><button type="button" id="cancel">← Back to exam list</button></p>
+    <h2 style="text-align:center;color:#0a7373;margin:0 0 0.5rem;">New exam</h2>
+    <p class="sub" style="margin-bottom:0.8rem;">Type a prompt with <code>_____</code> (five underscores) for each blank, then list acceptable answers.</p>
+    <form class="create-form" id="create-form">
+      <label>Title</label>
+      <input type="text" name="title" required value="${escapeHTML(d.title)}" placeholder="e.g. Past simple — Term 1 quiz">
+      <div style="display:flex;gap:0.6rem;">
+        <div style="flex:2;">
+          <label>Lesson id</label>
+          <input type="text" name="lesson_id" value="${escapeHTML(d.lesson_id)}" placeholder="custom">
+        </div>
+        <div style="flex:1;">
+          <label>CEFR (optional)</label>
+          <input type="text" name="cefr" value="${escapeHTML(d.cefr)}" placeholder="A1, A2, B1…">
+        </div>
+      </div>
+
+      <div id="qrows"></div>
+
+      <div id="form-err" class="err" style="display:none;"></div>
+      <div class="form-actions">
+        <button type="button" class="add-q" id="add-q">+ Add question</button>
+        <button type="button" class="cancel" id="cancel-form">Cancel</button>
+        <button type="submit" class="primary">Save exam</button>
+      </div>
+    </form>
+  `;
+  renderQRows();
+
+  $('#cancel').addEventListener('click', cancelCreate);
+  $('#cancel-form').addEventListener('click', cancelCreate);
+  $('#add-q').addEventListener('click', () => {
+    syncDraftFromDOM();
+    createDraft.exercises.push(emptyDraftExercise());
+    renderQRows();
+  });
+  $('#create-form').addEventListener('submit', onCreateSubmit);
+}
+
+function renderQRows() {
+  const d = createDraft;
+  const html = d.exercises.map((ex, i) => `
+    <div class="qrow" data-i="${i}">
+      <div class="qhead">
+        <h4>Question ${i + 1}</h4>
+        ${d.exercises.length > 1
+          ? `<button type="button" data-remove="${i}">Remove</button>` : ''}
+      </div>
+      <label>Prompt</label>
+      <input type="text" data-field="prompt" data-i="${i}"
+             value="${escapeHTML(ex.prompt)}"
+             placeholder="e.g. What is the past tense of 'eat'?">
+
+      <div class="blanks-section">
+        <label>Answers — mark each one correct or incorrect</label>
+        <div class="blank-box" id="ansbox-${i}">
+          <div class="answer-rows" id="ans-${i}"></div>
+          <button type="button" class="add-answer" data-add="${i}">+ Add answer</button>
+        </div>
+      </div>
+
+      <details class="optional">
+        <summary>▸ Translations &amp; explanations (optional)</summary>
+        <label>Thai prompt</label>
+        <input type="text" data-field="prompt_th" data-i="${i}" value="${escapeHTML(ex.prompt_th)}">
+        <label>Chinese prompt</label>
+        <input type="text" data-field="prompt_zh" data-i="${i}" value="${escapeHTML(ex.prompt_zh)}">
+        <label>Thai explanation</label>
+        <textarea data-field="explanation_th" data-i="${i}">${escapeHTML(ex.explanation_th)}</textarea>
+        <label>Chinese explanation</label>
+        <textarea data-field="explanation_zh" data-i="${i}">${escapeHTML(ex.explanation_zh)}</textarea>
+      </details>
+    </div>
+  `).join('');
+  $('#qrows').innerHTML = html;
+
+  d.exercises.forEach((_, i) => renderAnswersFor(i));
+
+  document.querySelectorAll('#qrows input[data-field], #qrows textarea[data-field]').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = Number(e.target.dataset.i);
+      const f = e.target.dataset.field;
+      createDraft.exercises[i][f] = e.target.value;
+    });
+  });
+  document.querySelectorAll('#qrows button[data-remove]').forEach(b => {
+    b.addEventListener('click', () => {
+      const i = Number(b.dataset.remove);
+      syncDraftFromDOM();
+      createDraft.exercises.splice(i, 1);
+      renderQRows();
+    });
+  });
+  document.querySelectorAll('#qrows button.add-answer').forEach(b => {
+    b.addEventListener('click', () => {
+      const i = Number(b.dataset.add);
+      syncDraftFromDOM();
+      createDraft.exercises[i].options.push({ text: '', correct: false });
+      renderAnswersFor(i);
+    });
+  });
+}
+
+function renderAnswersFor(i) {
+  const ex = createDraft.exercises[i];
+  const host = document.getElementById('ans-' + i);
+  if (!host) return;
+  host.innerHTML = ex.options.map((o, ai) => renderAnswerRow(i, ai, o)).join('');
+
+  host.querySelectorAll('input.atext').forEach(el => {
+    el.addEventListener('input', e => {
+      const [ii, ai] = e.target.dataset.idx.split('-').map(Number);
+      createDraft.exercises[ii].options[ai].text = e.target.value;
+    });
+  });
+  host.querySelectorAll('button.toggle').forEach(b => {
+    b.addEventListener('click', () => {
+      const [ii, ai] = b.dataset.idx.split('-').map(Number);
+      const opt = createDraft.exercises[ii].options[ai];
+      opt.correct = !opt.correct;
+      renderAnswersFor(ii);
+    });
+  });
+  host.querySelectorAll('button.rm-row').forEach(b => {
+    b.addEventListener('click', () => {
+      const [ii, ai] = b.dataset.idx.split('-').map(Number);
+      const arr = createDraft.exercises[ii].options;
+      if (arr.length <= 1) return;
+      arr.splice(ai, 1);
+      renderAnswersFor(ii);
+    });
+  });
+}
+
+function renderAnswerRow(i, ai, o) {
+  const klass = o.correct ? 'correct' : 'incorrect';
+  const label = o.correct ? '✓ Correct' : '✗ Incorrect';
+  return `
+    <div class="answer-row">
+      <input type="text" class="atext" data-idx="${i}-${ai}"
+             value="${escapeHTML(o.text)}"
+             placeholder="${ai === 0 ? 'e.g. ate' : 'another answer'}">
+      <button type="button" class="toggle ${klass}" data-idx="${i}-${ai}">${label}</button>
+      <button type="button" class="rm-row" data-idx="${i}-${ai}" title="Remove answer">×</button>
+    </div>
+  `;
+}
+
+// In some flows (add/remove question) we re-render qrows which destroys the
+// inputs; this scrapes current DOM values into createDraft first.
+function syncDraftFromDOM() {
+  const form = $('#create-form');
+  if (!form) return;
+  createDraft.title = form.title.value;
+  createDraft.lesson_id = form.lesson_id.value || 'custom';
+  createDraft.cefr = form.cefr.value;
+  document.querySelectorAll('#qrows .qrow').forEach(row => {
+    const i = Number(row.dataset.i);
+    if (!createDraft.exercises[i]) return;
+    row.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+      createDraft.exercises[i][el.dataset.field] = el.value;
+    });
+    row.querySelectorAll('input.atext').forEach(el => {
+      const [ii, ai] = el.dataset.idx.split('-').map(Number);
+      if (createDraft.exercises[ii] && createDraft.exercises[ii].options[ai]) {
+        createDraft.exercises[ii].options[ai].text = el.value;
+      }
+    });
+  });
+}
+
+function buildPayload() {
+  syncDraftFromDOM();
+  const d = createDraft;
+  return {
+    title: d.title.trim(),
+    lesson_id: (d.lesson_id || 'custom').trim() || 'custom',
+    cefr: d.cefr.trim(),
+    exercises: d.exercises.map(ex => ({
+      prompt: ex.prompt,
+      prompt_th: ex.prompt_th,
+      prompt_zh: ex.prompt_zh,
+      options: ex.options
+        .filter(o => o.text.trim().length > 0)
+        .map(o => ({ text: o.text.trim(), correct: !!o.correct })),
+      explanation_th: ex.explanation_th,
+      explanation_zh: ex.explanation_zh,
+    })),
+  };
+}
+
+async function onCreateSubmit(e) {
+  e.preventDefault();
+  const errBox = $('#form-err');
+  errBox.style.display = 'none';
+  const payload = buildPayload();
+
+  // Quick client-side validation; server validates again
+  if (!payload.title) {
+    errBox.textContent = 'Title is required.';
+    errBox.style.display = 'block'; return;
+  }
+  if (!payload.exercises.length) {
+    errBox.textContent = 'Add at least one question.'; errBox.style.display = 'block'; return;
+  }
+  for (let i = 0; i < payload.exercises.length; i++) {
+    const ex = payload.exercises[i];
+    if (!ex.prompt.trim()) {
+      errBox.textContent = `Question ${i + 1}: prompt is required.`;
+      errBox.style.display = 'block'; return;
+    }
+    if (!ex.options.length) {
+      errBox.textContent = `Question ${i + 1}: add at least one answer with text.`;
+      errBox.style.display = 'block'; return;
+    }
+    if (!ex.options.some(o => o.correct)) {
+      errBox.textContent = `Question ${i + 1}: mark at least one answer as correct.`;
+      errBox.style.display = 'block'; return;
+    }
+  }
+
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const r = await fetch('/exam', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      const txt = await r.text();
+      throw new Error('HTTP ' + r.status + ': ' + txt);
+    }
+    const data = await r.json();
+    listNotice = `Saved exam ${data.exam.id}.`;
+    createDraft = null;
+    state = 'list';
+    renderList();
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Save exam';
+    errBox.textContent = err.message;
+    errBox.style.display = 'block';
+  }
+}
+
+function cancelCreate() {
+  createDraft = null;
+  state = 'list';
+  renderList();
+}
+
+async function startExam(examId) {
+  state = 'take';
+  root.innerHTML = '<div>loading exam…</div>';
+  try {
+    const r = await fetch('/exam/' + encodeURIComponent(examId));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    currentExam = await r.json();
+  } catch (e) {
+    root.innerHTML = '<div class="err">Failed to load exam: ' + escapeHTML(e.message) + '</div>';
+    return;
+  }
+  renderTake();
+}
+
+function renderTake() {
+  const ex = currentExam;
+  const questions = ex.exercises.map((q, qi) => `
+    <div class="q">
+      <div class="qnum">Question ${qi + 1} of ${ex.exercises.length}</div>
+      <div class="prompt">${promptHTML(q, qi, 'take')}</div>
+      ${q.prompt_th ? `<p class="helper">${escapeHTML(q.prompt_th)}</p>` : ''}
+      ${q.prompt_zh ? `<p class="helper">${escapeHTML(q.prompt_zh)}</p>` : ''}
+      ${renderOptionsBlock(q, qi, 'take')}
+    </div>
+  `).join('');
+  root.innerHTML = `
+    <p class="back"><button type="button" id="abandon">← Back to exam list</button></p>
+    <h2 style="text-align:center;color:#0a7373;margin:0 0 1rem;">
+      ${escapeHTML(ex.lesson_title || ex.lesson_id)}
+    </h2>
+    <form id="exam-form">
+      ${questions}
+      <div class="submit-row">
+        <button type="submit">Submit all</button>
+      </div>
+    </form>
+  `;
+  $('#abandon').addEventListener('click', () => { state = 'list'; renderList(); });
+  $('#exam-form').addEventListener('submit', onSubmit);
+  // Focus first input
+  const first = document.querySelector('#exam-form input');
+  if (first) first.focus();
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const ex = currentExam;
+  // Per-exercise: list[str]. For multi-choice, the list is the option
+  // texts the student checked. For fill-blank (legacy), it's the typed
+  // text for each "_____" blank.
+  const answers = ex.exercises.map((q, qi) => {
+    const isMC = Array.isArray(q.options) && q.options.length > 0;
+    if (isMC) {
+      const checked = document.querySelectorAll(
+        `input[type=checkbox][data-qi="${qi}"]:checked`
+      );
+      return Array.from(checked).map(c => c.value);
+    }
+    const inputs = document.querySelectorAll(
+      `input[type=text][data-qi="${qi}"]`
+    );
+    return Array.from(inputs)
+      .sort((a, b) => Number(a.dataset.bi) - Number(b.dataset.bi))
+      .map(i => i.value);
+  });
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Grading…';
+  try {
+    const r = await fetch('/exam/' + encodeURIComponent(ex.id) + '/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers })
+    });
+    if (!r.ok) {
+      const txt = await r.text();
+      throw new Error('HTTP ' + r.status + ': ' + txt);
+    }
+    currentResults = await r.json();
+    // Stash the user's answers (the server response doesn't echo them)
+    currentResults._userAnswers = answers;
+    state = 'results';
+    renderResults();
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Submit all';
+    const errDiv = document.createElement('div');
+    errDiv.className = 'err';
+    errDiv.textContent = 'Submit failed: ' + err.message;
+    e.target.appendChild(errDiv);
+  }
+}
+
+function renderResults() {
+  const ex = currentExam;
+  const res = currentResults;
+  const pct = Math.round(res.score.pct * 100);
+  const klass = pct >= 70 ? 'ok' : (pct >= 40 ? '' : 'bad');
+
+  const questions = ex.exercises.map((q, qi) => {
+    const qres = res.per_question[qi];
+    const userAns = res._userAnswers[qi];
+    const reviewKlass = qres.correct ? 'correct' : 'incorrect';
+    const isMC = Array.isArray(q.options) && q.options.length > 0;
+    // Fill-blank shows an "Expected: ..." banner on wrong answers; multi-
+    // choice doesn't need one because the option highlights convey it.
+    const expectedHTML = (qres.correct || isMC) ? '' : `
+      <div class="expected">Expected: <b>${escapeHTML(qres.expected.join(' / '))}</b></div>
+    `;
+    const explainHTML = (qres.explanation_th || qres.explanation_zh) ? `
+      <div class="explain">
+        ${qres.explanation_th ? `<p>🇹🇭 ${escapeHTML(qres.explanation_th)}</p>` : ''}
+        ${qres.explanation_zh ? `<p>🇨🇳 ${escapeHTML(qres.explanation_zh)}</p>` : ''}
+      </div>
+    ` : '';
+    // qres.correct_options is a list per blank (fill-blank) or a single-
+    // item list (multi-choice). For multi-choice, pass the first entry.
+    const correctOpts = isMC ? (qres.correct_options[0] || []) : null;
+    return `
+      <div class="q review ${reviewKlass}">
+        <div class="qnum">Question ${qi + 1} ${qres.correct ? '✓' : '✗'}</div>
+        <div class="prompt">${promptHTML(q, qi, 'review', qres.per_blank, userAns)}</div>
+        ${renderOptionsBlock(q, qi, 'review', qres.correct, userAns, correctOpts)}
+        ${expectedHTML}
+        ${explainHTML}
+      </div>
+    `;
+  }).join('');
+
+  root.innerHTML = `
+    <p class="back"><button type="button" id="done">← Back to exam list</button></p>
+    <div class="score-banner ${klass}">
+      <div class="pct">${pct}%</div>
+      <div class="num">${res.score.correct} of ${res.score.total} correct</div>
+    </div>
+    ${questions}
+    <div class="submit-row">
+      <button type="button" id="done2">Back to exam list</button>
+    </div>
+  `;
+  document.getElementById('done').addEventListener('click', backToList);
+  document.getElementById('done2').addEventListener('click', backToList);
+}
+
+function backToList() {
+  state = 'list';
+  currentExam = null;
+  currentResults = null;
+  renderList();
+}
+
+renderList();
+</script>
+</body>
+</html>

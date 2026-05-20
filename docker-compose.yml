@@ -76,6 +76,9 @@ services:
       # persists across `docker compose down`. shared_events.json is
       # gitignored so each deployment keeps its own.
       - ./data/calendar:/data/calendar
+      # Generated exams from `python -m exam_creator`. Writable; per-deployment.
+      # Individual exam files are gitignored; the dir itself stays via .gitkeep.
+      - ./data/exams:/data/exams
     depends_on:
       - ollama
       - whisper

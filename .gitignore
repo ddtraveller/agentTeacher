@@ -37,3 +37,7 @@ tts_cache/
 # Shared calendar events — per-deployment, written by the orchestrator.
 # The data/calendar/ dir itself is kept (.gitkeep) so the bind-mount works.
 data/calendar/shared_events.json
+
+# Generated exams — LLM-produced via `python -m exam_creator`, per-deployment.
+# The data/exams/ dir itself is kept (.gitkeep).
+data/exams/*.json

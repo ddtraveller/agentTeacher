@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py ./
 COPY school_calendar ./school_calendar
+COPY exam_creator ./exam_creator
 COPY static ./static
 COPY lessons ./lessons
 
