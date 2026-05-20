@@ -39,6 +39,7 @@ When a claim has multiple ref keys (`[ref:Krashen 1985, Swain 1985]`), each reso
 - **AI/NLP technical** — Reynolds & McDonell 2021, Ji et al. 2023
 - **Thai linguistics & pronunciation** — Smyth 2002, Walker 2010
 - **Tool docs** — NotebookLM docs
+- **Tech industry news 2026** — HN Zero discussion 2026, MarkTechPost Zero 2026, TechTimes Zero compiler 2026, TheStack Zero 2026, Vercel Zero launch 2026
 
 ## Entries
 
@@ -114,6 +115,12 @@ Godwin-Jones, R. (2024). Distributed agency in second language learning and teac
 **Why cited:** Current-decade framing of how learner / teacher / AI share agency in a language-learning task. Informs Kru Eng's role-shift from teacher → pair-programmer in the post-W12 Track A.
 **Used in:** references/teaching_methods.md.
 
+### HN Zero discussion 2026
+Hacker News (2026, May). *Discussion thread: "Zero — a programming language for AI agents (vercel-labs)".* Most-upvoted critique replies argue that contemporary LLMs already parse human-readable compiler errors adequately and that agentic code failures are dominated by planning/context limits, not by error-message parsing.
+**Topic:** Tech industry news / critical reception of Vercel Zero.
+**Why cited:** Source for the "the premise is contested" framing in `references/vercel_zero_explainer.md`. Use whenever a learner asks whether Zero will succeed.
+**Used in:** references/vercel_zero_explainer.md.
+
 ### Harmer 2007
 Harmer, J. (2007). *The Practice of English Language Teaching* (4th ed.). Harlow: Pearson Longman.
 **Topic:** TEFL methodology.
@@ -168,6 +175,12 @@ Long, M.H. (2015). *Second Language Acquisition and Task-Based Language Teaching
 **Why cited:** The mature statement of TBLT as a research-grounded program. Used together with Ellis 2003 and Willis & Willis 2007 as the TBLT triumvirate.
 **Used in:** school/about_kru_eng.md, references/teaching_methods.md.
 
+### MarkTechPost Zero 2026
+MarkTechPost (2026, May 15). *Vercel Labs introduces Zero, a systems programming language designed so AI agents can read, repair, and ship native programs.* https://www.marktechpost.com/
+**Topic:** Tech industry news / Vercel Zero launch coverage.
+**Why cited:** Source for the structured-JSON compiler output framing and the "no GC / no implicit async / no globals" design rationale in `references/vercel_zero_explainer.md`.
+**Used in:** references/vercel_zero_explainer.md.
+
 ### NotebookLM docs
 Google. *NotebookLM Help and Documentation.* https://notebooklm.google.com — accessed 2026-05-11.
 **Topic:** Tool docs.
@@ -204,11 +217,29 @@ Swain, M. (1985). Communicative competence: Some roles of comprehensible input a
 **Why cited:** Origin of the **output hypothesis** — input alone is insufficient; learners need to be pushed to produce. The second half of Kru Eng's input + output ratio.
 **Used in:** school/about_kru_eng.md, references/teaching_methods.md.
 
+### TechTimes Zero compiler 2026
+Tech Times (2026, May). *Vercel Labs' Zero compiler speaks JSON to AI agents.* https://www.techtimes.com/
+**Topic:** Tech industry news / Vercel Zero compiler architecture.
+**Why cited:** Source for the v0.1.1 maturity caveats (no package registry, no stable compiler spec, borrow checker immature) in `references/vercel_zero_explainer.md`. Also the "Vercel Labs describes Zero as an experiment, not a production dependency" framing.
+**Used in:** references/vercel_zero_explainer.md.
+
+### TheStack Zero 2026
+The Stack (2026, May). *Vercel soft-launches machine-friendly language Zero.* https://www.thestack.technology/
+**Topic:** Tech industry news / Vercel Zero launch traction.
+**Why cited:** Source for the May 15 2026 launch date, the "~900 GitHub stars in 24 hours" traction figure, and the deliberate timing on the eve of Google I/O 2026 in `references/vercel_zero_explainer.md`.
+**Used in:** references/vercel_zero_explainer.md.
+
 ### Truscott 1996
 Truscott, J. (1996). The case against grammar correction in L2 writing classes. *Language Learning*, 46(2), 327–369. https://doi.org/10.1111/j.1467-1770.1996.tb01238.x
 **Topic:** Error correction.
 **Why cited:** The radical case that comprehensive grammar correction is at best useless and at worst harmful. Read together with Ferris 2004 as the rationale for selective, not comprehensive, feedback.
 **Used in:** assessment/formative_techniques.md.
+
+### Vercel Zero launch 2026
+Vercel Labs (2026, May 15). *Zero (zerolang) — a programming language for agents.* GitHub: https://github.com/vercel-labs/zerolang. Apache-2.0 licence. Authors: Chris Tate, Matt Van Horn.
+**Topic:** Tech industry news / Vercel Zero primary source.
+**Why cited:** The canonical primary source for any factual claim about Zero (launch date, authorship, licence, capability-based I/O design, structured compiler output). Resolves the assertion that capability-based I/O is older than the marketing implies (cited Haskell as a forty-year-old precedent).
+**Used in:** references/vercel_zero_explainer.md.
 
 ### Vygotsky 1978
 Vygotsky, L.S. (1978). *Mind in Society: The Development of Higher Psychological Processes* (ed. M. Cole, V. John-Steiner, S. Scribner, & E. Souberman). Cambridge, MA: Harvard University Press.

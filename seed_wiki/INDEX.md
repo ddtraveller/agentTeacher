@@ -59,7 +59,8 @@ seed_wiki/
 └── references/
     ├── teaching_methods.md          — TBLT, ESA, lexical, CALL, AI-mediated
     ├── sources.md                   — full bibliography for [ref:...] citations
-    └── notebooklm_bootstrap.md      — day-zero asset generation recipe
+    ├── notebooklm_bootstrap.md      — day-zero asset generation recipe
+    └── vercel_zero_explainer.md     — Vercel Zero (May 2026) topical reference
 ```
 
 ## Page registry
@@ -90,6 +91,7 @@ seed_wiki/
 | references/teaching_methods.md | Modern TEFL methodology reference | live |
 | references/sources.md | Bibliography — full citations for every [ref:...] key | live |
 | references/notebooklm_bootstrap.md | NotebookLM one-shot install recipe | live |
+| references/vercel_zero_explainer.md | Vercel Zero (May 2026) topical reference for AI-news lessons | live |
 
 ## What the agents do with this
 
