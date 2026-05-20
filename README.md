@@ -87,9 +87,34 @@ custom materials — none of it gets uploaded anywhere.
 
 ## What you get
 
+> **ภาษาไทย — ในแพ็คเกจนี้มีอะไรบ้าง**
+>
+> - **ฝึกสนทนาเสียง** — นักเรียนกดปุ่มค้างไว้ พูด ระบบตอบกลับเป็นเสียง ใช้งานผ่านเว็บเบราว์เซอร์ทั่วไป
+> - **หลักสูตร 12 สัปดาห์ A1→B1** — ภาษาอังกฤษผสมเทคโนโลยีและ AI literacy ทุกอย่างเป็น markdown ใน `seed_wiki/` แก้ให้ตรงกับหลักสูตรของโรงเรียนได้
+> - **เครื่องมือบทเรียน PPP** — Presentation → Practice → Production มี Past Simple และ Past Continuous ให้เป็นตัวอย่าง
+> - **ปฏิทินโรงเรียน** — รวมเหตุการณ์จากสามแหล่ง: ของโรงเรียนที่เขียนไว้ใน git (วันเปิดเทอม วันหยุด สัปดาห์สอบ) เหตุการณ์ที่ครูเพิ่มผ่าน UI (เก็บที่เซิร์ฟเวอร์) และเหตุการณ์ส่วนตัวของนักเรียน (เก็บในเบราว์เซอร์เท่านั้น ไม่ส่งออกที่ไหน)
+> - **เครื่องมือสร้างข้อสอบ** — สร้างได้สามวิธี: ใช้ CLI เรียก LLM ในเครื่องผลิตข้อสอบจากบทเรียน, ใช้ UI พิมพ์ข้อสอบเอง (ติ๊ก ✓ ถูก / ✗ ผิด แต่ละข้อ), หรือโหลดจากไฟล์ JSON การตรวจให้คะแนนเป็น deterministic ไม่ใช้ LLM
+> - **กระดานวาด** — เครื่องมือปากกา เส้น สี่เหลี่ยม ยางลบ พร้อมคีย์บอร์ดบนหน้าจอสำหรับพิมพ์ตัวอักษรลงบนกระดาน บันทึกเป็น PNG (`/whiteboard`)
+> - **โคลนเสียงครู (ทางเลือก)** — วางไฟล์เสียงครู 6 วินาทีใน `voices/` XTTS v2 จะโคลนเสียงให้
+> - **โอเพนซอร์สทั้งหมด** ใบอนุญาต MIT
+
+> **中文 — 系统包含哪些功能**
+>
+> - **语音对话练习** — 学生按住按钮说话，系统语音回复。Web UI 在任何现代浏览器中运行
+> - **12 周 A1→B1 课程大纲** — 英语 + 科技与 AI 素养。所有内容是 `seed_wiki/` 中的 markdown，可按贵校大纲、学生名单、教学风格自行编辑
+> - **PPP 课程引擎** — Presentation → Practice → Production。已包含 Past Simple 和 Past Continuous 示例课程
+> - **学校日历** — 三种事件源合并到月视图：仓库中预置的学校事件（学期、节假日、考试周，在 git 中维护）、运行时通过 UI 添加的共享事件（保存到服务器）、学生的个人事件（仅留在浏览器 `localStorage`，绝不发送到服务器）
+> - **试题生成器** — 三种生成方式：CLI 调用本地 LLM 从已有课程生成新题目；UI 手动构建（每个选项标记 ✓ 正确 / ✗ 错误）；JSON 文件导入。评分为确定性，评分流程不调用 LLM
+> - **数字白板** — 画笔、直线、方块、橡皮工具，以及屏幕字母键盘（点击字母在画布上输入文字）。保存为 PNG（`/whiteboard`）。后端还提供本地视觉模型反馈接口 `POST /whiteboard/analyze`（使用 `qwen2.5vl:3b`）
+> - **声音克隆（可选）** — 放入 6 秒教师 WAV 到 `voices/`，XTTS v2 会克隆出来
+> - **完全开源** MIT 许可证
+
 - **Voice conversation practice** — students hold a button, speak, get a reply spoken back. Web UI works on any modern browser.
 - **A 12-week A1→B1 curriculum** — English combined with Tech and AI literacy. Lives in `seed_wiki/` as plain markdown. Edit it to match your syllabus, your students' names, your teaching style.
-- **A scaffolded PPP lesson engine** — Presentation → Practice → Production. Sample lesson included (Past Continuous).
+- **A scaffolded PPP lesson engine** — Presentation → Practice → Production. Sample lessons included (Past Simple, Past Continuous).
+- **School calendar** — three event sources merged in a month view: docs-loaded school events (term dates, holidays, exam weeks shipped in the repo and edited in git), shared events added at runtime via the web UI, and personal events that stay in the student's browser (`localStorage`) and never touch the server.
+- **Exam creator** — three ways to produce graded fill-blank or multiple-choice exams: a CLI that calls the local LLM to generate fresh exercises from an existing lesson, a manual builder UI where the teacher types prompts and answers (with a ✓ Correct / ✗ Incorrect toggle per option), and a JSON file-load path. Grading is deterministic — no LLM in the scoring path.
+- **Whiteboard** — a drawing canvas with pen, line, square, eraser, and an on-screen alphabet keyboard for typing labels onto the canvas. Save the result as a PNG (`/whiteboard`). Backend includes an optional vision-model endpoint for English-tutor feedback on a student's drawing (`POST /whiteboard/analyze`, uses `qwen2.5vl:3b`).
 - **Voice cloning, optional** — drop a 6-second WAV of any teacher's voice into `voices/`; XTTS v2 will clone it.
 - **All open source.** MIT licensed.
 
@@ -372,8 +397,11 @@ back through your speakers.
 
 | URL | What you'll see |
 |---|---|
-| **http://localhost:8000/** | Web UI — mic + speaker chat with Kru Eng. Click "🎙 Hold to talk", speak, release. |
-| **http://localhost:8000/lesson** | Scaffolded PPP lesson UI — runs the Past Continuous lesson (presentation → practice → production). |
+| **http://localhost:8000/** | Web UI — mic + speaker chat with Kru Eng. Click "🎙 Hold to talk", speak, release. The landing page also has chips linking to the four feature pages below. |
+| **http://localhost:8000/lesson** | 📚 Scaffolded PPP lesson UI — Past Simple and Past Continuous, presentation → practice → production. |
+| **http://localhost:8000/calendar** | 📅 Month-view school calendar — docs events (in-repo), shared events (server-saved), and personal events (browser-local). |
+| **http://localhost:8000/exam** | 📝 Exam list + take + results. "+ New exam" builds a multi-choice exam by hand; load-from-file imports a JSON. |
+| **http://localhost:8000/whiteboard** | 🎨 Drawing canvas — pen, line, square, eraser, alphabet keyboard, Save PNG. |
 
 ## Hardware honestly
 
@@ -798,34 +826,51 @@ That's the full customization loop.
 > หน้าเว็บสำหรับนักเรียนและครูอยู่ที่ **http://localhost:8000** ตารางด้านล่างเป็นรายการ REST API ทั้งหมด ใช้เมื่อต้องการสร้างแอปพลิเคชันของคุณเองที่เชื่อมต่อกับ Kru Eng (เช่น บอท LINE ของโรงเรียน หรือระบบแสดงผลการเรียนของนักเรียน)
 >
 > Endpoint หลักที่น่าสนใจ:
-> - `GET /` — หน้าเว็บใช้งานจริง (ไมค์ + ลำโพง)
+> - `GET /` — หน้าเว็บใช้งานจริง (ไมค์ + ลำโพง) มีลิงก์ไปหน้าฟีเจอร์อื่น ๆ ด้านบน
 > - `GET /health` — ตรวจสอบว่าระบบพร้อมใช้งาน
 > - `POST /chat` — ส่งข้อความ ได้คำตอบเป็นสตรีม
 > - `POST /converse` — ส่งเสียง ได้คำตอบเป็นเสียงพร้อมเนื้อหา
 > - `GET /lesson` — หน้าเว็บบทเรียนแบบมีโครงสร้าง (PPP: Presentation → Practice → Production)
+> - `GET /calendar` + `GET/POST/DELETE /calendar/events` — ปฏิทินโรงเรียน (เหตุการณ์ของโรงเรียน + เหตุการณ์ที่เพิ่มผ่าน UI)
+> - `GET /exam` + `GET /exam/list` + `GET/POST /exam` + `POST /exam/{id}/submit` — สร้างและทำข้อสอบ (ตรวจให้คะแนนแบบ deterministic)
+> - `GET /whiteboard` + `POST /whiteboard/analyze` — กระดานวาด พร้อมตัวเลือกขอความคิดเห็นจากโมเดลภาพ (`qwen2.5vl:3b`)
 
 > **中文 — Endpoints (系统 API)**
 >
 > 学生和老师使用的网页在 **http://localhost:8000**。下方表格列出所有 REST API — 当您需要构建自己的应用程序与 Kru Eng 集成时使用（例如学校的 LINE 机器人，或学生成绩展示系统）。
 >
 > 主要 endpoint：
-> - `GET /` — 实际使用网页（麦克风 + 扬声器）
+> - `GET /` — 实际使用网页（麦克风 + 扬声器），顶部有指向其他功能页的链接
 > - `GET /health` — 检查系统是否就绪
 > - `POST /chat` — 发送文本，获取流式回复
 > - `POST /converse` — 发送语音，获取语音回复（含文本）
 > - `GET /lesson` — 结构化课程网页（PPP: Presentation → Practice → Production）
+> - `GET /calendar` + `GET/POST/DELETE /calendar/events` — 学校日历（docs 事件 + UI 添加的共享事件）
+> - `GET /exam` + `GET /exam/list` + `GET/POST /exam` + `POST /exam/{id}/submit` — 试题创建与提交（评分为确定性）
+> - `GET /whiteboard` + `POST /whiteboard/analyze` — 白板，可选视觉模型反馈（`qwen2.5vl:3b`）
 
 The orchestrator exposes these on port 8000:
 
 | Endpoint | Purpose |
 |---|---|
-| `GET  /` | Web UI (mic + speaker) |
+| `GET  /` | Web UI (mic + speaker) with nav chips to Lesson / Calendar / Exam / Whiteboard |
 | `GET  /health` | Per-backend status (used by UI footer) |
 | `POST /chat` | `{message, history}` → streaming text reply |
 | `POST /converse` | Multipart audio in → `{user, bot, audio, visemes}` |
 | `POST /speak` | `{text}` → audio (TTS only — handy for testing) |
 | `GET  /lesson` | Scaffolded PPP lesson UI |
 | `GET  /lesson/list` | List available lesson plans |
+| `GET  /calendar` | Month-view calendar HTML page |
+| `GET  /calendar/events` | List docs + shared events. Optional `?from=YYYY-MM-DD&to=YYYY-MM-DD` filter (Asia/Bangkok) |
+| `POST /calendar/events` | Add a shared event. Off-by-default `X-Teacher-Pass` gate via `CLASSROOM_CALENDAR_TEACHER_PASS` env |
+| `DELETE /calendar/events/{id}` | Remove a shared event. Returns 400 for docs events (immutable — edit `seed_wiki/calendar/school_events.json` in git instead) |
+| `GET  /exam` | Exam list / take / results UI |
+| `GET  /exam/list` | List every exam on disk (metadata only — no questions or answers) |
+| `GET  /exam/{id}` | Fetch an exam with answer keys stripped (server still knows which options are correct for grading) |
+| `POST /exam` | Create a teacher-authored exam. JSON body: `{title, lesson_id, cefr, exercises: [{prompt, options or blanks, ...}]}` |
+| `POST /exam/{id}/submit` | `{answers: [[str,...], ...]}` → score + per-question grading. Deterministic, no LLM in the scoring path |
+| `GET  /whiteboard` | Drawing canvas page |
+| `POST /whiteboard/analyze` | `{image: "data:image/png;base64,..."}` → `{description, vocab, encouragement}` via `qwen2.5vl:3b` vision model |
 
 ## Day-2 operations
 
