@@ -29,6 +29,9 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from school_calendar import load_docs_events
+from school_calendar.api import router as calendar_router
+
 log = logging.getLogger("orchestrator")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -90,6 +93,8 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+app.include_router(calendar_router)
 
 
 class ChatRequest(BaseModel):
@@ -426,6 +431,14 @@ def _load_lessons() -> None:
 _load_lessons()
 
 
+# ── Calendar (docs-loaded events) ───────────────────────────────────────────
+# Events from seed_wiki/calendar/school_events.json — term dates, holidays,
+# exam weeks. Edited by the school maintainer in git; immutable per release.
+# Shared and personal events arrive in later phases.
+
+_DOCS_EVENTS = load_docs_events()
+
+
 def _normalize_answer(s: str) -> str:
     """Lowercase, strip, collapse whitespace, expand common contractions.
     Contraction expansion makes 'wasn't' and 'was not' equivalent without
@@ -675,3 +688,8 @@ async def lesson_turn(req: LessonTurnReq):
 @app.get("/lesson")
 async def lesson_ui():
     return FileResponse(STATIC / "lesson.html")
+
+
+@app.get("/calendar", include_in_schema=False)
+async def calendar_ui():
+    return FileResponse(STATIC / "calendar.html")

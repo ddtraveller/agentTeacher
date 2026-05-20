@@ -1,0 +1,29 @@
+[
+  {
+    "id": "term-1-start-2026",
+    "title": "Term 1 starts",
+    "start": "2026-06-02T08:30:00+07:00",
+    "end": "2026-06-02T15:30:00+07:00",
+    "all_day": false,
+    "source": "docs",
+    "description": "First day of Term 1. Assembly at 08:30 in the main hall."
+  },
+  {
+    "id": "midterm-exam-week-2026-t1",
+    "title": "Mid-term exam week",
+    "start": "2026-07-13T00:00:00+07:00",
+    "end": "2026-07-18T00:00:00+07:00",
+    "all_day": true,
+    "source": "docs",
+    "description": "All-class mid-term examinations, Monday to Friday."
+  },
+  {
+    "id": "asanha-bucha-2026",
+    "title": "Asanha Bucha Day (public holiday)",
+    "start": "2026-07-29T00:00:00+07:00",
+    "end": "2026-07-30T00:00:00+07:00",
+    "all_day": true,
+    "source": "docs",
+    "description": "วันอาสาฬหบูชา — public holiday. School closed."
+  }
+]

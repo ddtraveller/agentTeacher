@@ -72,6 +72,10 @@ services:
       # Edit these markdown files to customize Kru Eng for your school.
       - ./seed_wiki:/data/wiki:ro
       - wiki_index:/data/wiki_index
+      # Shared calendar events added via the /calendar web UI. Writable;
+      # persists across `docker compose down`. shared_events.json is
+      # gitignored so each deployment keeps its own.
+      - ./data/calendar:/data/calendar
     depends_on:
       - ollama
       - whisper

@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar · Kru Eng</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun",
+         "Noto Sans Thai", sans-serif; max-width: 900px; margin: 1rem auto;
+         padding: 1rem; background: #f7f5ef; color: #1a1a1a; }
+  h1 { color: #0a7373; margin: 0 0 0.25rem; text-align: center; }
+  .sub { color: #666; font-size: 0.9rem; margin: 0 0 1rem; text-align: center; }
+  .back { text-align: center; margin: 0 0 1rem; }
+  .back a { color: #0a7373; text-decoration: none; font-size: 0.85rem; }
+
+  /* Header strip: month + nav + filter chips */
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between;
+          align-items: center; background: white; padding: 0.75rem 1rem;
+          border-radius: 10px; border: 1px solid #e6e3da; margin-bottom: 0.75rem;
+          gap: 0.75rem; }
+  .nav-btns { display: flex; align-items: center; gap: 0.5rem; }
+  .nav-btns h2 { margin: 0; font-size: 1.1rem; color: #1a1a1a; min-width: 11ch;
+                 text-align: center; }
+  .nav-btns button { padding: 0.35rem 0.8rem; font-size: 0.9rem;
+                     background: #0a7373; color: white; border: none;
+                     border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .nav-btns button:hover { background: #085959; }
+  .nav-btns button.today { background: #c75c00; }
+  .nav-btns button.today:hover { background: #9a4500; }
+  .filters { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+             font-size: 0.85rem; }
+  .filters label { cursor: pointer; padding: 0.2rem 0.6rem; border-radius: 999px;
+                   color: white; display: inline-flex; align-items: center;
+                   gap: 0.3rem; }
+  .filters label.docs     { background: #0a7373; }
+  .filters label.shared   { background: #2d8a3e; }
+  .filters label.personal { background: #c75c00; }
+  .filters input { accent-color: white; }
+  .filters label.off { opacity: 0.4; }
+
+  /* Day-of-week header */
+  .dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+         margin-bottom: 2px; }
+  .dow div { text-align: center; padding: 0.4rem 0; font-size: 0.8rem;
+             color: #666; font-weight: 600; background: white;
+             border-radius: 4px; }
+
+  /* Calendar grid */
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr);
+          gap: 2px; background: #e6e3da; padding: 2px; border-radius: 6px; }
+  .cell { background: white; min-height: 92px; padding: 4px;
+          font-size: 0.85rem; cursor: pointer; border: 2px solid transparent;
+          display: flex; flex-direction: column; gap: 2px; }
+  .cell:hover { border-color: #0a7373; }
+  .cell.outside { background: #fafaf6; color: #b0b0b0; }
+  .cell.today { background: #fff8e1; }
+  .cell .num { font-weight: 600; color: #555; }
+  .cell.outside .num { color: #c0c0c0; }
+  .cell.today .num { color: #c75c00; }
+
+  .ev { font-size: 0.7rem; padding: 2px 5px; border-radius: 3px;
+        color: white; cursor: pointer; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap; }
+  .ev.docs     { background: #0a7373; }
+  .ev.shared   { background: #2d8a3e; }
+  .ev.personal { background: #c75c00; }
+
+  /* Modals */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+              display: none; align-items: center; justify-content: center;
+              z-index: 10; }
+  .backdrop.open { display: flex; }
+  .modal { background: white; padding: 1.25rem; border-radius: 10px;
+           max-width: 420px; width: 90%; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin: 0 0 0.75rem; color: #0a7373; }
+  .modal label { display: block; margin: 0.5rem 0; font-size: 0.9rem; }
+  .modal input[type=text], .modal input[type=datetime-local],
+  .modal textarea { width: 100%; padding: 0.45rem 0.55rem; box-sizing: border-box;
+                    border: 1px solid #ccc; border-radius: 4px;
+                    font-family: inherit; font-size: 0.95rem; }
+  .modal textarea { min-height: 60px; resize: vertical; }
+  .modal fieldset { border: 1px solid #ddd; border-radius: 4px;
+                    padding: 0.4rem 0.75rem; margin: 0.5rem 0; }
+  .modal fieldset legend { padding: 0 0.4rem; font-size: 0.85rem; color: #666; }
+  .modal fieldset label { display: inline-block; margin-right: 0.75rem; }
+  .modal-btns { display: flex; justify-content: flex-end; gap: 0.5rem;
+                margin-top: 0.75rem; }
+  .modal-btns button { padding: 0.5rem 1rem; border-radius: 6px; border: none;
+                       cursor: pointer; font-family: inherit; }
+  .modal-btns button.primary { background: #0a7373; color: white; }
+  .modal-btns button.primary:hover { background: #085959; }
+  .modal-btns button.danger  { background: #c8102e; color: white; }
+  .modal-btns button.danger:hover  { background: #a00a23; }
+  .modal-btns button.cancel  { background: #eee; color: #333; }
+  .modal-btns button.cancel:hover  { background: #ddd; }
+  .err { color: #8b1c1c; font-size: 0.85rem; margin-top: 0.5rem; }
+
+  /* Read-only event view */
+  .ev-view dl { margin: 0.5rem 0; }
+  .ev-view dt { font-size: 0.8rem; color: #666; margin-top: 0.4rem; }
+  .ev-view dd { margin: 0.1rem 0; font-size: 0.95rem; word-wrap: break-word; }
+  .ev-view .src-pill { display: inline-block; padding: 0.1rem 0.5rem;
+                        border-radius: 999px; color: white; font-size: 0.75rem; }
+  .ev-view .src-pill.docs     { background: #0a7373; }
+  .ev-view .src-pill.shared   { background: #2d8a3e; }
+  .ev-view .src-pill.personal { background: #c75c00; }
+</style>
+</head>
+<body>
+
+<h1>📅 School Calendar</h1>
+<p class="sub">School events · shared events · your personal events (this browser only)</p>
+<p class="back"><a href="/">← Back to Kru Eng chat</a></p>
+
+<div class="head">
+  <div class="nav-btns">
+    <button id="prev" type="button" aria-label="Previous month">‹</button>
+    <h2 id="month-label"></h2>
+    <button id="next" type="button" aria-label="Next month">›</button>
+    <button id="today-btn" class="today" type="button">Today</button>
+  </div>
+  <div class="filters">
+    <label class="docs"     data-filter="docs"><input type="checkbox" checked> School</label>
+    <label class="shared"   data-filter="shared"><input type="checkbox" checked> Shared</label>
+    <label class="personal" data-filter="personal"><input type="checkbox" checked> Personal</label>
+  </div>
+</div>
+
+<div class="dow">
+  <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+  <div>Thu</div><div>Fri</div><div>Sat</div>
+</div>
+<div class="grid" id="grid"></div>
+
+<!-- Add/edit event modal -->
+<div class="backdrop" id="add-backdrop">
+  <div class="modal">
+    <h3 id="add-title">Add event</h3>
+    <form id="add-form">
+      <label>Title <input name="title" type="text" required></label>
+      <label>Start <input name="start" type="datetime-local" required></label>
+      <label>End <input name="end" type="datetime-local" required></label>
+      <label><input name="all_day" type="checkbox"> All day</label>
+      <label>Description <textarea name="description"></textarea></label>
+      <fieldset>
+        <legend>Visible to</legend>
+        <label><input name="source" type="radio" value="personal" checked> Just me (personal — this browser only)</label>
+        <label><input name="source" type="radio" value="shared"> Everyone (shared — saved to server)</label>
+      </fieldset>
+      <p class="err" id="add-err"></p>
+      <div class="modal-btns">
+        <button type="button" class="cancel" id="add-cancel">Cancel</button>
+        <button type="submit" class="primary">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View/delete event modal -->
+<div class="backdrop" id="view-backdrop">
+  <div class="modal ev-view">
+    <h3 id="view-title"></h3>
+    <p><span class="src-pill" id="view-src"></span></p>
+    <dl>
+      <dt>Start</dt> <dd id="view-start"></dd>
+      <dt>End</dt>   <dd id="view-end"></dd>
+      <dt>Description</dt> <dd id="view-desc"></dd>
+    </dl>
+    <p class="err" id="view-err"></p>
+    <div class="modal-btns">
+      <button type="button" class="cancel" id="view-close">Close</button>
+      <button type="button" class="danger" id="view-delete">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const TZ_OFFSET = '+07:00';                       // Asia/Bangkok
+const LOCAL_STORAGE_KEY = 'kru-eng-calendar-personal';
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+
+let currentMonth = new Date();        // first-of-month is derived from this
+let allEvents = [];                   // current month's events, merged
+let viewingEventId = null;            // for the view modal's delete handler
+
+// ---- Date helpers ---------------------------------------------------------
+
+// Format a Date as YYYY-MM-DD (UTC slice; treat dates as wall-clock not UTC).
+function ymd(d) {
+  return d.getFullYear() + '-' +
+         String(d.getMonth() + 1).padStart(2, '0') + '-' +
+         String(d.getDate()).padStart(2, '0');
+}
+
+// Form's <input type=datetime-local> gives "YYYY-MM-DDTHH:MM". Server wants
+// "YYYY-MM-DDTHH:MM:SS+07:00". Round-tripping the offset keeps everyone honest.
+function localFormToIso(s)  { return s + ':00' + TZ_OFFSET; }
+function isoToLocalForm(s)  { return s.slice(0, 16); }
+
+// Pretty-print an ISO-with-offset datetime for the view modal.
+function prettyDate(iso, all_day) {
+  const d = new Date(iso);
+  const opts = all_day
+    ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }
+    : { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit' };
+  return d.toLocaleString(undefined, opts);
+}
+
+// First Sunday on-or-before the 1st of (year, month). Used as grid origin.
+function gridStart(date) {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const offset = first.getDay();   // 0 = Sun
+  first.setDate(first.getDate() - offset);
+  return first;
+}
+
+// ---- Personal events (localStorage) ---------------------------------------
+
+function loadPersonal() {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.warn('personal events load failed:', e);
+    return [];
+  }
+}
+function savePersonal(events) {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(events));
+}
+function addPersonal(ev) {
+  const events = loadPersonal();
+  ev.id = ev.id || ('p-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random()));
+  ev.source = 'personal';
+  events.push(ev);
+  savePersonal(events);
+  return ev;
+}
+function deletePersonal(id) {
+  const events = loadPersonal().filter(e => e.id !== id);
+  savePersonal(events);
+}
+
+// ---- Server events --------------------------------------------------------
+
+async function fetchServer(date) {
+  // Pull a 6-week window so events from the previous/next month visible on
+  // the grid edges still show up.
+  const start = gridStart(date);
+  const end = new Date(start); end.setDate(end.getDate() + 41);
+  const url = `/calendar/events?from=${ymd(start)}&to=${ymd(end)}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    return data.events || [];
+  } catch (e) {
+    console.warn('server events fetch failed:', e);
+    return [];
+  }
+}
+
+async function addShared(payload) {
+  const r = await fetch('/calendar/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) {
+    const detail = await r.text();
+    throw new Error('Server refused: ' + r.status + ' ' + detail);
+  }
+  const data = await r.json();
+  return data.event;
+}
+
+async function deleteShared(id) {
+  const r = await fetch('/calendar/events/' + encodeURIComponent(id),
+                        { method: 'DELETE' });
+  if (!r.ok) {
+    const detail = await r.text();
+    throw new Error('Server refused: ' + r.status + ' ' + detail);
+  }
+}
+
+// ---- Render ---------------------------------------------------------------
+
+function activeFilters() {
+  const on = new Set();
+  document.querySelectorAll('.filters label').forEach(l => {
+    if (l.querySelector('input').checked) on.add(l.dataset.filter);
+  });
+  return on;
+}
+
+function eventOnDate(ev, dateStr) {
+  // Compare on YYYY-MM-DD basis using the local-offset date portion of the
+  // ISO string. For all-day events the convention is end = day-after-00:00,
+  // so we step back one local day to get the last included date.
+  const startDate = ev.start.slice(0, 10);
+  let endDate;
+  if (ev.all_day) {
+    const [y, m, d] = ev.end.slice(0, 10).split('-').map(Number);
+    const last = new Date(y, m - 1, d);
+    last.setDate(last.getDate() - 1);
+    endDate = ymd(last);
+  } else {
+    endDate = ev.end.slice(0, 10);
+  }
+  return startDate <= dateStr && dateStr <= endDate;
+}
+
+function renderGrid() {
+  $('#month-label').textContent =
+    MONTH_NAMES[currentMonth.getMonth()] + ' ' + currentMonth.getFullYear();
+
+  const start = gridStart(currentMonth);
+  const today = ymd(new Date());
+  const monthIdx = currentMonth.getMonth();
+  const filters = activeFilters();
+  const grid = $('#grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    const ds = ymd(d);
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (d.getMonth() !== monthIdx) cell.classList.add('outside');
+    if (ds === today) cell.classList.add('today');
+    cell.dataset.date = ds;
+
+    const num = document.createElement('div');
+    num.className = 'num';
+    num.textContent = d.getDate();
+    cell.appendChild(num);
+
+    const dayEvents = allEvents.filter(e =>
+      filters.has(e.source) && eventOnDate(e, ds)
+    );
+    for (const ev of dayEvents) {
+      const e = document.createElement('div');
+      e.className = 'ev ' + ev.source;
+      e.textContent = ev.title;
+      e.title = ev.title + (ev.description ? ' — ' + ev.description : '');
+      e.dataset.eventId = ev.id;
+      e.addEventListener('click', evt => { evt.stopPropagation(); openView(ev); });
+      cell.appendChild(e);
+    }
+
+    cell.addEventListener('click', () => openAdd(ds));
+    grid.appendChild(cell);
+  }
+}
+
+async function refresh() {
+  const server = await fetchServer(currentMonth);
+  const personal = loadPersonal();
+  allEvents = server.concat(personal);
+  renderGrid();
+}
+
+// ---- Add modal ------------------------------------------------------------
+
+function openAdd(dateStr) {
+  $('#add-err').textContent = '';
+  const form = $('#add-form');
+  form.reset();
+  form.title.value = '';
+  form.start.value = dateStr + 'T09:00';
+  form.end.value   = dateStr + 'T10:00';
+  form.source.value = 'personal';
+  $('#add-backdrop').classList.add('open');
+  form.title.focus();
+}
+function closeAdd() { $('#add-backdrop').classList.remove('open'); }
+
+$('#add-cancel').addEventListener('click', closeAdd);
+$('#add-backdrop').addEventListener('click', e => {
+  if (e.target.id === 'add-backdrop') closeAdd();
+});
+
+$('#add-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#add-err').textContent = '';
+  const f = e.target;
+  const startLocal = f.start.value;
+  const endLocal   = f.end.value;
+  if (!startLocal || !endLocal) {
+    $('#add-err').textContent = 'Start and end are required';
+    return;
+  }
+  const payload = {
+    title:       f.title.value.trim(),
+    start:       localFormToIso(startLocal),
+    end:         localFormToIso(endLocal),
+    all_day:     f.all_day.checked,
+    description: f.description.value.trim(),
+  };
+  const source = f.source.value;
+  try {
+    if (source === 'shared') {
+      await addShared(payload);
+    } else {
+      addPersonal(payload);
+    }
+    closeAdd();
+    await refresh();
+  } catch (err) {
+    $('#add-err').textContent = err.message;
+  }
+});
+
+// ---- View / delete modal --------------------------------------------------
+
+function openView(ev) {
+  viewingEventId = ev.id;
+  $('#view-title').textContent = ev.title;
+  const pill = $('#view-src');
+  pill.textContent = ev.source;
+  pill.className = 'src-pill ' + ev.source;
+  $('#view-start').textContent = prettyDate(ev.start, ev.all_day);
+  $('#view-end').textContent   = prettyDate(ev.end,   ev.all_day);
+  $('#view-desc').textContent  = ev.description || '(none)';
+  $('#view-err').textContent   = '';
+  // Hide delete for docs events — server rejects anyway, but we'd rather
+  // not even tempt the user.
+  $('#view-delete').style.display = (ev.source === 'docs') ? 'none' : '';
+  $('#view-backdrop').classList.add('open');
+}
+function closeView() { $('#view-backdrop').classList.remove('open'); viewingEventId = null; }
+
+$('#view-close').addEventListener('click', closeView);
+$('#view-backdrop').addEventListener('click', e => {
+  if (e.target.id === 'view-backdrop') closeView();
+});
+$('#view-delete').addEventListener('click', async () => {
+  if (!viewingEventId) return;
+  const ev = allEvents.find(e => e.id === viewingEventId);
+  if (!ev) { closeView(); return; }
+  try {
+    if (ev.source === 'shared') {
+      await deleteShared(viewingEventId);
+    } else if (ev.source === 'personal') {
+      deletePersonal(viewingEventId);
+    }
+    closeView();
+    await refresh();
+  } catch (err) {
+    $('#view-err').textContent = err.message;
+  }
+});
+
+// ---- Nav + filters --------------------------------------------------------
+
+$('#prev').addEventListener('click', () => {
+  currentMonth.setMonth(currentMonth.getMonth() - 1);
+  refresh();
+});
+$('#next').addEventListener('click', () => {
+  currentMonth.setMonth(currentMonth.getMonth() + 1);
+  refresh();
+});
+$('#today-btn').addEventListener('click', () => {
+  currentMonth = new Date();
+  refresh();
+});
+
+document.querySelectorAll('.filters input').forEach(input => {
+  input.addEventListener('change', () => {
+    const label = input.parentElement;
+    label.classList.toggle('off', !input.checked);
+    renderGrid();  // filter-only change, no refetch needed
+  });
+});
+
+refresh();
+</script>
+</body>
+</html>

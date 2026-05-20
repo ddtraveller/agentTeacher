@@ -33,3 +33,7 @@ Thumbs.db
 wiki_index/
 ollama_data/
 tts_cache/
+
+# Shared calendar events — per-deployment, written by the orchestrator.
+# The data/calendar/ dir itself is kept (.gitkeep) so the bind-mount works.
+data/calendar/shared_events.json
