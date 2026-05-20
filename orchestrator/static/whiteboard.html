@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiteboard · Kru Eng</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun",
+         "Noto Sans Thai", sans-serif; max-width: 900px; margin: 1rem auto;
+         padding: 1rem; background: #f7f5ef; color: #1a1a1a; }
+  h1 { color: #0a7373; margin: 0 0 0.25rem; text-align: center; }
+  .sub { color: #666; font-size: 0.9rem; margin: 0 0 1rem; text-align: center; }
+  .back { text-align: center; margin: 0 0 1rem; }
+  .back a { color: #0a7373; text-decoration: none; font-size: 0.85rem; }
+
+  .tools { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+           background: white; border: 1px solid #e6e3da; border-radius: 8px;
+           padding: 0.6rem 0.85rem; margin-bottom: 0.6rem; }
+  .tools .group { display: flex; gap: 0.25rem; align-items: center; }
+  .tools .sep { color: #ccc; padding: 0 0.2rem; }
+  .tools .label { color: #666; font-size: 0.8rem; margin-right: 0.3rem; }
+
+  .tools button.mode { padding: 0.4rem 0.8rem; border: 1px solid #ccc;
+                       background: white; border-radius: 999px;
+                       cursor: pointer; font-family: inherit;
+                       font-size: 0.85rem; }
+  .tools button.mode:hover { border-color: #0a7373; }
+  .tools button.mode.active { background: #0a7373; color: white;
+                              border-color: #0a7373; }
+
+  .swatch { width: 28px; height: 28px; border-radius: 50%;
+            border: 2px solid transparent; cursor: pointer;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .swatch.active { border-color: #0a7373; }
+
+  .sz { display: inline-flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        border: 2px solid transparent; background: #f3f1e8; }
+  .sz.active { border-color: #0a7373; }
+  .sz .dot { background: #1a1a1a; border-radius: 50%; }
+  .sz[data-size="3"]  .dot { width: 4px;  height: 4px; }
+  .sz[data-size="8"]  .dot { width: 10px; height: 10px; }
+  .sz[data-size="18"] .dot { width: 18px; height: 18px; }
+
+  .tools button.action { padding: 0.4rem 0.9rem; background: #0a7373;
+                         color: white; border: none; border-radius: 999px;
+                         cursor: pointer; font-family: inherit;
+                         font-size: 0.85rem; }
+  .tools button.action:hover { background: #085959; }
+  .tools button.action.danger { background: white; color: #c8102e;
+                                 border: 1px solid #c8102e; }
+  .tools button.action.danger:hover { background: #fdecea; }
+  .tools button:disabled { background: #aaa; color: white; cursor: wait; }
+
+  .canvas-wrap { position: relative; display: flex; justify-content: center;
+                 background: white; border: 1px solid #e6e3da;
+                 border-radius: 8px; padding: 0.5rem; }
+  canvas { background: white; touch-action: none; cursor: crosshair;
+           border-radius: 4px; max-width: 100%; height: auto;
+           box-shadow: inset 0 0 0 1px #eaeaea; }
+
+  /* Text-insertion caret overlaid on the canvas while in text mode */
+  .caret { position: absolute; width: 2px; background: currentColor;
+           pointer-events: none; animation: blink 1s steps(2, end) infinite;
+           display: none; }
+  .caret.shown { display: block; }
+  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+  /* Keyboard popout */
+  .keyboard { display: none; margin-top: 0.6rem; background: white;
+              border: 1px solid #e6e3da; border-radius: 8px;
+              padding: 0.7rem 0.85rem; }
+  .keyboard.shown { display: block; }
+  .keyboard .hint { color: #666; font-size: 0.82rem;
+                     margin: 0 0 0.55rem; }
+  .keyboard .hint b { color: #0a7373; }
+  .key-grid { display: grid; grid-template-columns: repeat(13, 1fr);
+              gap: 0.25rem; }
+  .key-grid button { padding: 0.45rem 0; border: 1px solid #ccc;
+                      background: #fafaf6; border-radius: 4px;
+                      cursor: pointer; font-family: inherit;
+                      font-size: 0.95rem; }
+  .key-grid button:hover { border-color: #0a7373; background: #eafafa; }
+  .key-grid button.wide { grid-column: span 4; }
+  .key-grid button.shift { grid-column: span 2; }
+  .key-grid button.shift.active { background: #0a7373; color: white;
+                                   border-color: #0a7373; }
+
+  .status { color: #888; font-size: 0.85rem; text-align: center;
+            margin: 0.4rem 0; min-height: 1.1rem; }
+</style>
+</head>
+<body>
+
+<h1>🎨 Whiteboard</h1>
+<p class="sub">Draw something — Kru Eng will describe what you drew and teach you new words</p>
+<p class="back"><a href="/">← Back to Kru Eng chat</a></p>
+
+<div class="tools">
+  <div class="group">
+    <span class="label">Tool</span>
+    <button class="mode active" id="m-pen" type="button">✏️ Pen</button>
+    <button class="mode" id="m-line" type="button">╱ Line</button>
+    <button class="mode" id="m-rect" type="button">▢ Square</button>
+    <button class="mode" id="m-text" type="button">⌨️ Type</button>
+    <button class="mode" id="m-eraser" type="button">⌫ Eraser</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="group" id="colors">
+    <span class="label">Color</span>
+    <div class="swatch active" data-color="#1a1a1a" style="background:#1a1a1a;"></div>
+    <div class="swatch"        data-color="#c8102e" style="background:#c8102e;"></div>
+    <div class="swatch"        data-color="#0a7373" style="background:#0a7373;"></div>
+    <div class="swatch"        data-color="#c75c00" style="background:#c75c00;"></div>
+    <div class="swatch"        data-color="#2d8a3e" style="background:#2d8a3e;"></div>
+  </div>
+  <span class="sep">|</span>
+  <div class="group" id="sizes">
+    <span class="label">Size</span>
+    <div class="sz"        data-size="3"><span class="dot"></span></div>
+    <div class="sz active" data-size="8"><span class="dot"></span></div>
+    <div class="sz"        data-size="18"><span class="dot"></span></div>
+  </div>
+  <span class="sep">|</span>
+  <div class="group">
+    <button class="action danger" id="clear-btn" type="button">Clear</button>
+    <button class="action" id="save-btn" type="button">💾 Save PNG</button>
+  </div>
+</div>
+
+<div class="keyboard" id="keyboard">
+  <p class="hint">Click on the canvas to place the <b>text cursor</b>, then click letters below to type. The current colour and size apply.</p>
+  <div class="key-grid" id="key-grid"></div>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="board" width="800" height="500"></canvas>
+  <div class="caret" id="caret"></div>
+</div>
+
+<p class="status" id="status"></p>
+
+<script>
+const $ = sel => document.querySelector(sel);
+const canvas = $('#board');
+const ctx = canvas.getContext('2d');
+
+// White background so toDataURL produces a clean PNG (canvas default is
+// transparent, which makes the vision model harder to interpret).
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+
+let mode = 'pen';        // 'pen' | 'eraser' | 'line' | 'rect' | 'text'
+let color = '#1a1a1a';
+let size = 8;
+let drawing = false;
+let lastX = 0, lastY = 0;
+let startX = 0, startY = 0;     // pointerdown anchor for shape tools
+let snapshot = null;            // ImageData captured before a shape preview
+
+// Text-tool state
+let textX = 60, textY = 60;     // canvas-coord cursor (default top-left-ish)
+let textCursorSet = false;      // becomes true after first canvas-click in text mode
+let shifted = false;            // shift modifier on the on-screen keyboard
+
+// ---- Tool state -----------------------------------------------------------
+
+const MODE_BUTTONS = { pen: '#m-pen', eraser: '#m-eraser',
+                        line: '#m-line', rect: '#m-rect',
+                        text: '#m-text' };
+
+function setMode(m) {
+  mode = m;
+  for (const [key, sel] of Object.entries(MODE_BUTTONS)) {
+    document.querySelector(sel).classList.toggle('active', m === key);
+  }
+  // Keyboard panel + caret visibility follow text mode
+  $('#keyboard').classList.toggle('shown', m === 'text');
+  $('#caret').classList.toggle('shown', m === 'text' && textCursorSet);
+  if (m === 'text') updateCaret();
+  canvas.style.cursor = (m === 'text') ? 'text' : 'crosshair';
+}
+$('#m-pen').addEventListener('click',    () => setMode('pen'));
+$('#m-line').addEventListener('click',   () => setMode('line'));
+$('#m-rect').addEventListener('click',   () => setMode('rect'));
+$('#m-text').addEventListener('click',   () => setMode('text'));
+$('#m-eraser').addEventListener('click', () => setMode('eraser'));
+
+// ---- Keyboard popout ------------------------------------------------------
+
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+function fontPx() {
+  // Brush size 3 → ~14px, size 8 → ~28px, size 18 → ~52px. Scales with
+  // the chosen brush so the size selector applies to text too.
+  return Math.max(12, size * 3);
+}
+
+function updateCaret() {
+  const caret = $('#caret');
+  if (mode !== 'text' || !textCursorSet) { caret.classList.remove('shown'); return; }
+  const rect = canvas.getBoundingClientRect();
+  const wrap = $('#root') ? null : canvas.parentElement;
+  // We position the caret relative to .canvas-wrap (position: relative).
+  // Canvas itself is centered with padding (0.5rem), so use the canvas's
+  // offset within the wrap as the origin.
+  const scaleX = rect.width / canvas.width;
+  const scaleY = rect.height / canvas.height;
+  const fp = fontPx();
+  caret.style.left   = (canvas.offsetLeft + textX * scaleX) + 'px';
+  caret.style.top    = (canvas.offsetTop  + textY * scaleY) + 'px';
+  caret.style.height = (fp * scaleY) + 'px';
+  caret.style.color  = color;
+  caret.classList.add('shown');
+}
+window.addEventListener('resize', () => updateCaret());
+
+function drawCharAtCursor(ch) {
+  const fp = fontPx();
+  ctx.font = `${fp}px sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'top';
+  ctx.fillText(ch, textX, textY);
+  textX += ctx.measureText(ch).width;
+  // Wrap to next line if we run off the right edge
+  if (textX > canvas.width - 8) {
+    textX = 60;
+    textY += fp + 4;
+    if (textY > canvas.height - fp) textY = 60;  // wrap to top
+  }
+  updateCaret();
+}
+
+function buildKeyboard() {
+  const grid = $('#key-grid');
+  const frag = document.createDocumentFragment();
+  // Shift toggle (capital letters)
+  const shift = document.createElement('button');
+  shift.type = 'button';
+  shift.className = 'shift';
+  shift.textContent = '⇧ Shift';
+  shift.addEventListener('click', () => {
+    shifted = !shifted;
+    shift.classList.toggle('active', shifted);
+    // Re-label letter buttons
+    document.querySelectorAll('#key-grid button[data-letter]').forEach(b => {
+      const ltr = b.dataset.letter;
+      b.textContent = shifted ? ltr.toUpperCase() : ltr;
+    });
+  });
+  frag.appendChild(shift);
+
+  // 26 letter buttons
+  for (const ltr of LETTERS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.letter = ltr;
+    b.textContent = ltr;
+    b.addEventListener('click', () => {
+      if (!textCursorSet) {
+        // First click: place cursor at default, draw, then prompt the
+        // user to click on canvas to relocate.
+        textCursorSet = true;
+        updateCaret();
+      }
+      drawCharAtCursor(shifted ? ltr.toUpperCase() : ltr);
+    });
+    frag.appendChild(b);
+  }
+
+  // Space (wide)
+  const space = document.createElement('button');
+  space.type = 'button';
+  space.className = 'wide';
+  space.textContent = '␣ Space';
+  space.addEventListener('click', () => {
+    if (!textCursorSet) { textCursorSet = true; updateCaret(); }
+    drawCharAtCursor(' ');
+  });
+  frag.appendChild(space);
+
+  grid.appendChild(frag);
+}
+buildKeyboard();
+
+document.querySelectorAll('#colors .swatch').forEach(s => {
+  s.addEventListener('click', () => {
+    color = s.dataset.color;
+    document.querySelectorAll('#colors .swatch').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    if (mode === 'eraser') setMode('pen');   // picking a color exits eraser
+    updateCaret();   // caret colour follows the chosen colour
+  });
+});
+document.querySelectorAll('#sizes .sz').forEach(s => {
+  s.addEventListener('click', () => {
+    size = Number(s.dataset.size);
+    document.querySelectorAll('#sizes .sz').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    updateCaret();   // text size follows brush size
+  });
+});
+
+$('#clear-btn').addEventListener('click', () => {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Reset text cursor too
+  textCursorSet = false;
+  textX = 60; textY = 60;
+  $('#caret').classList.remove('shown');
+});
+
+// ---- Drawing --------------------------------------------------------------
+
+function pointerPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top)  * scaleY,
+  };
+}
+
+function strokeStyleForMode() {
+  return mode === 'eraser' ? '#ffffff' : color;
+}
+
+function start(e) {
+  e.preventDefault();
+  const { x, y } = pointerPos(e);
+  lastX = x; lastY = y;
+  startX = x; startY = y;
+
+  if (mode === 'text') {
+    // Click on canvas while in text mode just places the cursor. No
+    // dragging, no shape — pointermove/end do nothing.
+    textX = x; textY = y;
+    textCursorSet = true;
+    updateCaret();
+    return;
+  }
+
+  drawing = true;
+  if (mode === 'pen' || mode === 'eraser') {
+    // Single-tap registers as a dot (so a quick click leaves a mark).
+    ctx.beginPath();
+    ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+    ctx.fillStyle = strokeStyleForMode();
+    ctx.fill();
+  } else if (mode === 'line' || mode === 'rect') {
+    // Snapshot the canvas so previewing the shape during pointermove
+    // can restore the pre-shape state and redraw cleanly each frame.
+    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function move(e) {
+  if (!drawing) return;
+  e.preventDefault();
+  const { x, y } = pointerPos(e);
+
+  if (mode === 'pen' || mode === 'eraser') {
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = strokeStyleForMode();
+    ctx.lineWidth = size;
+    ctx.stroke();
+    lastX = x; lastY = y;
+  } else if (mode === 'line') {
+    if (snapshot) ctx.putImageData(snapshot, 0, 0);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    ctx.stroke();
+  } else if (mode === 'rect') {
+    if (snapshot) ctx.putImageData(snapshot, 0, 0);
+    ctx.beginPath();
+    ctx.rect(startX, startY, x - startX, y - startY);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    ctx.stroke();
+  }
+}
+
+function end(e) {
+  if (!drawing) return;
+  e && e.preventDefault();
+  drawing = false;
+  snapshot = null;   // free the captured frame
+}
+
+canvas.addEventListener('pointerdown', start);
+canvas.addEventListener('pointermove', move);
+canvas.addEventListener('pointerup', end);
+canvas.addEventListener('pointercancel', end);
+canvas.addEventListener('pointerleave', end);
+
+// ---- Save -----------------------------------------------------------------
+
+$('#save-btn').addEventListener('click', () => {
+  const dataUrl = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  // ISO-ish filename: whiteboard-2026-05-20T19-30-00.png
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.download = `whiteboard-${ts}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  $('#status').textContent = `Saved as ${a.download}`;
+});
+</script>
+</body>
+</html>

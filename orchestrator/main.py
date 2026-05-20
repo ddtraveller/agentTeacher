@@ -32,6 +32,7 @@ from pydantic import BaseModel
 from school_calendar import load_docs_events
 from school_calendar.api import router as calendar_router
 from exam_creator.api import router as exam_router
+from whiteboard.api import router as whiteboard_router
 
 log = logging.getLogger("orchestrator")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -97,6 +98,7 @@ app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 app.include_router(calendar_router)
 app.include_router(exam_router)
+app.include_router(whiteboard_router)
 
 
 class ChatRequest(BaseModel):
@@ -700,3 +702,8 @@ async def calendar_ui():
 @app.get("/exam", include_in_schema=False)
 async def exam_ui():
     return FileResponse(STATIC / "exam.html")
+
+
+@app.get("/whiteboard", include_in_schema=False)
+async def whiteboard_ui():
+    return FileResponse(STATIC / "whiteboard.html")
